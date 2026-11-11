@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Guest Ledger">
+<meta name="theme-color" content="#f5f1ea">
+<title>Guest Ledger</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f5f1ea;--panel:#fffdf9;--ink:#1c1916;--muted:#675f55;--line:#e1d8cb;--soft:#efe8dd;--ember:#a23d1c;--ember-ink:#fff;--warn-bg:#fcefd4;--warn-ink:#744604;--r:10px;--w:700;--serif:"Playfair Display",Georgia,"Times New Roman",serif}
+@media (prefers-color-scheme:dark){:root{--bg:#131110;--panel:#1c1916;--ink:#f4efe8;--muted:#aaa196;--line:#38322b;--soft:#25211d;--ember:#e57a52;--ember-ink:#1a0c06;--warn-bg:#3b2a0b;--warn-ink:#f5d38a}}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:var(--w) 15px/1.45 -apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,Helvetica,Arial,sans-serif;-webkit-text-size-adjust:100%}
+button,input,select,textarea,.btn{font:inherit;color:inherit}
+button,.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:40px;padding:8px 14px;border:1px solid var(--line);border-radius:var(--r);background:var(--panel);cursor:pointer;text-decoration:none;text-align:center;overflow-wrap:anywhere}
+.actions button,.send .btn{white-space:nowrap}
+.run{display:flex;flex-wrap:wrap;gap:14px;align-items:center;margin:4px 0 18px}
+.prog{flex:1 1 220px;height:4px;border-radius:99px;background:var(--soft);overflow:hidden}
+.prog i{display:block;height:100%;background:var(--ember);border-radius:99px;transition:width .4s}
+.pl{font-size:14px;color:var(--muted)}
+.stats{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 10px}
+.pace div{display:grid;grid-template-columns:78px 150px 1fr;gap:8px;align-items:center;font-size:13px;margin:2px 0}
+.pace i{display:block;height:8px;border-radius:4px;background:var(--ember);-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.sx{font-size:13px;color:var(--muted);font-weight:600;margin:1px 0 4px}
+.focus{border:1.5px dashed var(--line);border-radius:10px;padding:10px 12px;min-height:54px;margin:8px 0 4px;outline:none}
+.focus:empty:before{content:attr(data-ph);color:var(--muted)}
+.quote{margin-top:26px;padding-top:14px;border-top:2px solid var(--ink);text-align:center}
+.quote q{display:block;font-size:18px;font-weight:800;font-style:italic;quotes:"\201C" "\201D"}
+.quote span{display:block;margin-top:6px;color:var(--muted);font-size:13px}
+button:hover,.btn:hover{border-color:var(--muted)}
+.primary{background:var(--ember);border-color:var(--ember);color:var(--ember-ink)}
+.primary:hover{border-color:var(--ink)}
+input,select,textarea{width:100%;padding:9px 11px;border:1px solid var(--line);border-radius:var(--r);background:var(--panel)}
+textarea{resize:vertical;line-height:1.5}
+input:focus,select:focus,textarea:focus,button:focus-visible,.btn:focus-visible{outline:2px solid var(--ember);outline-offset:1px}
+h1{font-family:var(--serif);font-size:28px;font-weight:800;margin:0 0 6px}h2{font-family:var(--serif);font-size:22px;font-weight:800;margin:0 0 8px}h3{font-size:15px;font-weight:800;margin:22px 0 8px;text-transform:none}
+.fine{color:var(--muted);font-size:13px;margin:6px 0}
+.top{position:sticky;top:0;z-index:5;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;padding:12px 18px;background:var(--bg);border-bottom:1px solid var(--line)}
+.brand{display:flex;gap:10px;align-items:center}
+.logo{width:38px;height:38px;border-radius:50%;background:var(--ember);color:var(--ember-ink);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px}
+.title{font-family:var(--serif);font-size:22px;font-weight:800}.sub{font-size:12px;color:var(--muted)}
+.actions{display:flex;flex-wrap:wrap;gap:8px}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--ember)}
+.banner{margin:12px 18px 0;padding:10px 14px;border-radius:var(--r);background:var(--warn-bg);color:var(--warn-ink);display:flex;gap:10px;align-items:center;justify-content:space-between;font-size:14px}
+.banner button{min-height:32px;padding:4px 10px}
+main{padding:22px 26px 40px;max-width:1500px;margin:0 auto}
+.empty{display:flex;justify-content:center;padding-top:6vh}
+.drop{max-width:620px;width:100%;text-align:center;padding:40px 28px;border:2px dashed var(--line);border-radius:18px;background:var(--panel)}
+.drop.over{border-color:var(--ember)}
+.row{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:16px 0}
+.score{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));border-top:1px solid var(--line);border-bottom:1px solid var(--line);margin-bottom:26px}
+.metric{padding:14px 18px;border-right:1px solid var(--line)}.metric:last-child{border-right:0}
+.ml{font-size:11px;color:var(--muted);letter-spacing:.09em;text-transform:uppercase}.mv{font-family:var(--serif);font-size:36px;font-weight:800;line-height:1.15}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:22px;align-items:start}
+.col{border-top:2px solid var(--ink);padding-top:8px}
+.col-h{display:flex;justify-content:space-between;align-items:center;margin:2px 0 4px}
+.cnt{font-size:13px;color:var(--muted)}
+.chip{display:inline-flex;align-items:center;gap:7px;font-size:12px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink)}.chip:before{content:"";width:9px;height:9px;border-radius:50%;background:var(--ci)}
+.list{display:flex;flex-direction:column}
+.card{display:block;width:100%;text-align:left;white-space:normal;padding:12px 6px;border:0;border-bottom:1px solid var(--line);border-radius:0;background:none}.card:hover{background:var(--soft);border-color:var(--line)}
+.card.cool{opacity:.72}
+.ct{display:flex;flex-wrap:wrap;justify-content:space-between;gap:2px 8px;align-items:baseline}.card{overflow-wrap:break-word}
+.nm{font-family:var(--serif);font-size:18px;font-weight:700;line-height:1.25}
+.tm{font-size:11px;padding:2px 0;color:var(--muted);flex-shrink:0;letter-spacing:.04em}
+.tm.before{padding:2px 8px;border-radius:999px;background:var(--ember);color:var(--ember-ink)}
+.meta{font-size:13px;color:var(--muted);margin-top:2px}
+.flags{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+.flags:empty{display:none}
+.flag{font-size:11px;padding:2px 7px;border-radius:6px;background:var(--soft);color:var(--muted)}
+.flag.warn{background:var(--warn-bg);color:var(--warn-ink)}
+.none{font-size:13px;color:var(--muted);padding:6px 4px}
+.sublabel{font-size:12px;color:var(--muted);margin:6px 4px 0}
+.done{font-size:12px;color:var(--muted);margin:8px 4px 2px}
+.c-red{--cb:#fbe3dc;--ci:#8b2814}.c-pink{--cb:#fbe5ee;--ci:#85204c}.c-teal{--cb:#dcf1e8;--ci:#0a5641}.c-purple{--cb:#eae8fc;--ci:#393186}.c-gray{--cb:#ebe5dc;--ci:#4a443d}.c-amber{--cb:#fbeed2;--ci:#754604}.c-blue{--cb:#e1edfa;--ci:#0e4277}
+[data-tone="dark"] .c-red{--cb:#4b1d13;--ci:#f7c3b5}[data-tone="dark"] .c-pink{--cb:#4b1830;--ci:#f6c2d6}[data-tone="dark"] .c-teal{--cb:#0f3a2e;--ci:#a8e6cf}[data-tone="dark"] .c-purple{--cb:#2a2560;--ci:#d0ccf7}[data-tone="dark"] .c-gray{--cb:#34302b;--ci:#d8d1c7}[data-tone="dark"] .c-amber{--cb:#41300c;--ci:#f8d48f}[data-tone="dark"] .c-blue{--cb:#0f2c4d;--ci:#b8d6f5}
+.themes{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.theme{flex-direction:column;align-items:flex-start;justify-content:flex-start;text-align:left;gap:6px;padding:10px;border-width:2px;min-width:0}
+.theme.on{border-color:var(--ember)}
+.sw{display:flex;gap:4px}.sw i{width:22px;height:22px;border-radius:50%;border:1px solid rgba(128,128,128,.35)}
+.scrim{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:20}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(500px,100vw);z-index:21;background:var(--panel);border-left:1px solid var(--line);overflow-y:auto;padding:16px 18px 40px;-webkit-overflow-scrolling:touch}
+.drawer.wide{width:min(760px,100vw)}
+#drawer{position:fixed;inset:0;z-index:21;background:var(--bg);overflow-y:auto;padding:0 0 130px;-webkit-overflow-scrolling:touch}
+.fv-top{position:sticky;top:0;z-index:2;display:flex;align-items:center;gap:14px;padding:12px 20px;background:var(--bg);border-bottom:1px solid var(--line)}
+.dots{display:flex;flex-wrap:wrap;gap:7px;justify-content:center;flex:1}
+.dots i{width:9px;height:9px;border-radius:50%;background:var(--line);transition:transform .2s}
+.dots i.on{background:var(--ink)}.dots i.cur{background:var(--ember);transform:scale(1.4)}
+.fv{max-width:720px;margin:0 auto;padding:30px 22px 0}
+.eyebrow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:12px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.fv-name{font-family:var(--serif);font-size:clamp(32px,5.5vw,48px);font-weight:800;line-height:1.08;margin:10px 0 8px}
+.fv-sub{font-size:17px;color:var(--muted);margin-bottom:6px}
+.know{background:var(--soft);border-radius:14px;padding:6px 16px 10px;margin:18px 0 6px}
+.know summary{font-size:12px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.composer textarea{min-height:250px;font-size:17px;line-height:1.6}
+.fv-bar{position:fixed;left:0;right:0;bottom:0;z-index:22;display:flex;flex-wrap:wrap;gap:8px;justify-content:center;padding:12px 16px calc(12px + env(safe-area-inset-bottom));background:var(--bg);border-top:1px solid var(--line)}
+.fv-bar .btn.primary{min-height:50px;padding:10px 26px;font-size:17px}
+.fv-bar button{min-height:50px}
+.fv-done{text-align:center;padding-top:14vh}
+.enter{animation:fvIn .26s ease-out}
+@keyframes fvIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.enter{animation:none}.prog i,.dots i{transition:none}}
+.dh{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:12px}
+.dn{font-size:21px;font-weight:800}.ds{font-size:13px;color:var(--muted)}
+.ctx{background:var(--soft);border-radius:12px;padding:12px;margin-bottom:12px}
+.kv{display:flex;justify-content:space-between;gap:10px;font-size:14px;padding:3px 0}
+.kv span{color:var(--muted)}
+.alert{margin-top:8px;padding:8px 10px;border-radius:8px;background:var(--warn-bg);color:var(--warn-ink);font-size:13px}
+.internal{margin-top:10px;border-top:1px dashed var(--line);padding-top:8px}
+.il{font-size:11px;color:var(--muted);margin-bottom:6px}
+.tags{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px}
+.note{font-size:14px;white-space:pre-wrap;margin:4px 0}
+.fl{display:block;font-size:13px;color:var(--muted);margin:10px 0}
+.fl input,.fl select,.fl textarea{margin-top:4px;color:var(--ink);font-size:15px}
+.lines{display:grid;grid-template-columns:1fr auto;gap:8px;margin:6px 0 12px}
+.send{display:grid;grid-template-columns:1fr auto;gap:8px}
+.row3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:0 12px}
+.cated{border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin:0 0 10px}
+.cathead{display:grid;grid-template-columns:1fr 120px auto auto;gap:8px;align-items:center}
+details{margin:6px 0}summary{cursor:pointer;font-size:14px;padding:6px 0}
+.linesed li{display:flex;justify-content:space-between;gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid var(--line);font-size:14px}
+.linesed{list-style:none;padding:0;margin:0}
+.savebar{position:sticky;bottom:-40px;background:var(--panel);padding:12px 0 6px;border-top:1px solid var(--line);margin-top:18px}
+.mapbox{max-width:860px;margin:0 auto;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px}
+.mapfile table{width:100%;border-collapse:collapse;font-size:14px}
+.mapfile td{padding:6px 6px;border-bottom:1px solid var(--line);vertical-align:middle}
+.mapfile td:first-child{width:32%}.samp{color:var(--muted);font-size:12px;width:30%;word-break:break-word}
+.err{color:#b3261e;font-size:14px;min-height:20px;margin-top:8px}
+.toast{position:fixed;left:50%;bottom:92px;transform:translateX(-50%);z-index:40;display:flex;gap:12px;align-items:center;padding:10px 14px;border-radius:12px;background:var(--ink);color:var(--bg);font-size:14px;max-width:92vw}
+.toast button{min-height:30px;padding:4px 10px;background:transparent;color:var(--bg);border-color:var(--bg)}
+#sheetWrap{position:fixed;inset:0;z-index:30;background:var(--bg);overflow-y:auto;padding:18px}
+.sheet-bar{display:flex;gap:8px;justify-content:flex-end;margin-bottom:12px}
+#sheet{max-width:820px;margin:0 auto;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:24px}
+#sheet h2{margin-top:18px;border-bottom:2px solid var(--ink);padding-bottom:4px}
+#sheet h4{margin:12px 0 4px;font-size:14px;font-weight:800}
+#sheet ul{margin:0;padding-left:18px}#sheet li{margin:3px 0}
+[hidden]{display:none!important}
+@media (max-width:640px){main{padding:12px}.cathead{grid-template-columns:1fr 1fr}.send{grid-template-columns:1fr}}
+@media print{body>*{display:none!important}#sheetWrap{display:block!important;position:static;padding:0;background:#fff}#sheetWrap .sheet-bar{display:none!important}#sheet{border:0;padding:0;color:#000;background:#fff}#sheet h2{border-color:#000}}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="brand"><div class="logo" aria-hidden="true">GL</div><div><div class="title" id="venueTitle">Guest Ledger</div><div class="sub" id="weekLabel">Load this week's export to begin</div></div></div>
+  <nav class="actions">
+    <button id="btnLoad" class="primary">Load week</button>
+    <button id="btnSheet">Pre-shift sheet</button>
+    <button id="btnExport" hidden>Export</button>
+    <button id="btnCols" hidden>Match columns</button>
+    <button id="btnSettings">Settings</button>
+    <button id="btnBackup">Backup <span class="dot" id="backupDot" hidden></span></button>
+  </nav>
+</header>
+<div id="banner" class="banner" hidden></div>
+<main>
+  <section id="empty" class="empty">
+    <div class="drop" id="drop">
+      <h1>Drop this week's SevenRooms export</h1>
+      <p class="fine">Reservations from last Thursday through this Sunday. Add the client export too if the reservation file has no email column. CSV or Excel. Select both files at once.</p>
+      <div class="row"><button class="primary" id="btnChoose">Choose file</button><button id="btnSample">Try with sample guests</button></div>
+      <p class="fine">Files are read on this device only. Nothing is uploaded anywhere.</p>
+    </div>
+  </section>
+  <section id="mapping" hidden></section>
+  <section id="board" hidden>
+    <div class="run" id="run"></div>
+    <div class="score" id="score"></div>
+    <div class="cols" id="cols"></div>
+  </section>
+</main>
+<div id="scrim" class="scrim" hidden></div>
+<aside id="drawer" hidden aria-label="Guest"></aside>
+<aside id="settings" class="drawer wide" hidden aria-label="Settings"></aside>
+<section id="sheetWrap" hidden>
+  <div class="sheet-bar"><button id="btnPrint" class="primary">Print</button><button id="btnCopySheet">Copy</button><button id="btnCloseSheet">Close</button></div>
+  <div id="sheet"></div>
+</section>
+<div id="toast" class="toast" role="status" hidden></div>
+<input type="file" id="file" accept=".csv,.tsv,.txt,.xlsx,.xls,.json,text/csv" multiple hidden>
+<input type="file" id="restoreFile" accept=".json,application/json" hidden>
+
+<script>
+'use strict';
+/* ===== CORE: pure logic, no DOM ===== */
+const MONTHS=['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'];
+const pad=n=>String(n).padStart(2,'0');
+const iso=(y,m,d)=>{const t=new Date(y,m-1,d);return isNaN(t)?'':`${t.getFullYear()}-${pad(t.getMonth()+1)}-${pad(t.getDate())}`};
+const todayISO=()=>{const t=new Date();return iso(t.getFullYear(),t.getMonth()+1,t.getDate())};
+const addDays=(s,n)=>{const [y,m,d]=s.split('-').map(Number);return iso(y,m,d+n)};
+const daysBetween=(a,b)=>{const p=s=>{const [y,m,d]=s.split('-').map(Number);return Date.UTC(y,m-1,d)};return Math.round((p(b)-p(a))/864e5)};
+
+function toISO(s){
+  s=String(s||'').trim();if(!s)return '';
+  let m=s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);if(m)return iso(+m[1],+m[2],+m[3]);
+  m=s.match(/^(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{2,4})/);if(m){let y=+m[3];if(y<100)y+=2000;return iso(y,+m[1],+m[2])}
+  m=s.match(/([A-Za-z]{3,})\.?\s+(\d{1,2})(?!\d)(?:st|nd|rd|th)?,?(?:\s+(\d{4}))?/);
+  if(m){const mi=MONTHS.indexOf(m[1].slice(0,3).toLowerCase());if(mi>=0)return iso(m[3]?+m[3]:new Date().getFullYear(),mi+1,+m[2])}
+  m=s.match(/(\d{1,2})\s+([A-Za-z]{3,})\.?,?(?:\s+(\d{4}))?/);
+  if(m){const mi=MONTHS.indexOf(m[2].slice(0,3).toLowerCase());if(mi>=0)return iso(m[3]?+m[3]:new Date().getFullYear(),mi+1,+m[1])}
+  return '';
+}
+function sniffDelimiter(text){
+  const nl=text.search(/\r?\n/),line=nl>-1?text.slice(0,nl):text,c={',':0,';':0,'\t':0};let q=false;
+  for(const ch of line){if(ch==='"')q=!q;else if(!q&&ch in c)c[ch]++}
+  return Object.keys(c).sort((a,b)=>c[b]-c[a])[0];
+}
+function parseCSV(text,d){
+  text=String(text).replace(/^﻿/,'');d=d||sniffDelimiter(text);
+  const rows=[];let row=[],f='',q=false;
+  const end=()=>{row.push(f);f='';if(row.some(x=>x.trim()!==''))rows.push(row);row=[]};
+  for(let i=0;i<text.length;i++){
+    const c=text[i];
+    if(q){if(c==='"'){if(text[i+1]==='"'){f+='"';i++}else q=false}else f+=c}
+    else if(c==='"')q=true;
+    else if(c===d){row.push(f);f=''}
+    else if(c==='\n'||c==='\r'){if(c==='\r'&&text[i+1]==='\n')i++;end()}
+    else f+=c;
+  }
+  end();return rows;
+}
+// key, label, exact header aliases, contains pattern, exclude pattern
+const FIELDS=[
+  ['first','First name',['first name','firstname','first','guest first name','client first name'],/first ?name/,null],
+  ['last','Last name',['last name','lastname','last','surname','guest last name','client last name'],/last ?name|surname/,null],
+  ['full','Full name',['name','guest name','client name','full name','guest','client'],/(guest|client|full) name/,null],
+  ['email','Email',['email','email address','e mail','guest email','client email'],/e ?mail/,/opt|consent|subscri|market|bounce|valid/],
+  ['phone','Phone',['phone','phone number','mobile','cell','mobile phone'],/phone|mobile/,/opt|consent|sms/],
+  ['date','Visit date',['date','reservation date','res date','visit date','arrival date','day','service date'],/(reservation|res|visit|arrival|service) date|^date/,/creat|updat|modif|book|birth|last|first|anniv|cancel/],
+  ['time','Time',['time','reservation time','arrival time','res time','seating time'],/(reservation|res|arrival|seating) time|^time/,/creat|updat|book|cancel/],
+  ['party','Party size',['party size','covers','guests','pax','size','party','# guests','guest count','num guests'],/party|covers|pax|guest count/,null],
+  ['status','Status',['status','reservation status','res status'],/status/,/opt|market/],
+  ['resTags','Reservation tags',['reservation tags','res tags','tags','booking tags','reservation tag'],/(reservation|res|booking) tag/,null],
+  ['clientTags','Client tags',['client tags','guest tags','profile tags','client tag'],/(client|guest|profile) tag/,null],
+  ['resNotes','Reservation notes',['reservation notes','res notes','notes','booking notes','special requests','requests','request','reservation note'],/(reservation|res|booking) note|request/,null],
+  ['clientNotes','Client notes',['client notes','guest notes','profile notes','client note'],/(client|guest|profile) note/,null],
+  ['visits','Total visits',['total visits','visits','visit count','# visits','number of visits','completed visits','total visit count'],/visit/,/last|first|date|group/],
+  ['optin','Marketing opt-in',['marketing opt in','email opt in','opt in','opted in','email marketing opt in'],/opt ?in|subscri/,null],
+];
+const normH=h=>String(h||'').toLowerCase().replace(/[^a-z0-9#]+/g,' ').trim();
+function detect(headers){
+  const H=headers.map(normH),map={},used=new Set();
+  for(const [k,,ex] of FIELDS){const i=H.findIndex((h,j)=>!used.has(j)&&ex.includes(h));if(i>-1){map[k]=i;used.add(i)}}
+  for(const [k,,,inc,exc] of FIELDS){if(map[k]!=null)continue;const i=H.findIndex((h,j)=>!used.has(j)&&inc.test(h)&&!(exc&&exc.test(h)));if(i>-1){map[k]=i;used.add(i)}}
+  return map;
+}
+function nameCase(s){s=String(s||'').trim();if(!s)return '';if(s===s.toUpperCase()||s===s.toLowerCase())return s.toLowerCase().replace(/(^|[\s'-])(\p{L})/gu,(m,a,b)=>a+b.toUpperCase());return s}
+function toRows(body,map){
+  const g=(r,k)=>map[k]!=null?String(r[map[k]]??'').trim():'';
+  return body.map(r=>{
+    // SevenRooms puts labels like "(VIP)" inside the name; move them into tags
+    const nameTags=[];const strip=s=>s.replace(/\(([^)]*)\)/g,(m,t)=>{if(t.trim())nameTags.push(t.trim());return ''}).replace(/\s+/g,' ').trim();
+    let first=strip(g(r,'first')),last=strip(g(r,'last'));const full=strip(g(r,'full'));
+    if(!first&&full){
+      if(full.includes(',')){const [l,f]=full.split(',');first=(f||'').trim().split(/\s+/)[0]||'';last=last||l.trim()}
+      else{const p=full.split(/\s+/);first=p[0]||'';last=last||p.slice(1).join(' ')}
+    }
+    const em=g(r,'email').toLowerCase(),v=g(r,'visits').replace(/[^\d]/g,''),ct=[g(r,'clientTags'),...nameTags].filter(Boolean).join(', '),oi=g(r,'optin').toLowerCase();
+    return {first:nameCase(first),last:nameCase(last),email:/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)?em:'',phone:g(r,'phone'),date:toISO(g(r,'date')),time:g(r,'time'),party:g(r,'party').replace(/[^\d]/g,''),status:g(r,'status'),resTags:g(r,'resTags'),clientTags:ct,resNotes:g(r,'resNotes'),clientNotes:g(r,'clientNotes'),visits:v===''?null:parseInt(v,10),optin:oi===''?null:/^(y|yes|true|1|opted in|subscribed)$/.test(oi)};
+  }).filter(x=>x.first||x.last||x.email);
+}
+const nameKey=r=>`${r.first} ${r.last}`.toLowerCase().trim();
+const guestKey=r=>r.email||nameKey(r);
+const resId=r=>`${guestKey(r)}|${r.date}|${r.time}`;
+const isExcluded=r=>/cancel|no[\s-]?show/i.test(r.status||'');
+function merge(sets){
+  const res=[],byEmail={},byName={};
+  for(const s of sets){if(s.type==='res')res.push(...s.rows);else for(const g of s.rows){if(g.email)byEmail[g.email]=g;byName[nameKey(g)]=g}}
+  for(const r of res){
+    const g=(r.email&&byEmail[r.email])||byName[nameKey(r)];if(!g)continue;
+    for(const k of ['email','phone','clientTags','clientNotes'])if(!r[k])r[k]=g[k];
+    if(r.visits==null)r.visits=g.visits;
+    if(r.optin==null)r.optin=g.optin;
+  }
+  const seen=new Set();return res.filter(r=>{const id=resId(r);if(seen.has(id))return false;seen.add(id);return true});
+}
+const hayOf=r=>[r.resTags,r.clientTags,r.resNotes,r.clientNotes].join(' | ').toLowerCase();
+const optedIn=r=>r.optin!=null?r.optin:/marketing opt-?ins?\b/.test(hayOf(r))?true:null;
+const NOISE=/^(group )?all( dine in)? guests$|^(res|client):?$/i;
+const kwList=s=>String(s||'').split(',').map(x=>x.trim().toLowerCase()).filter(Boolean);
+const reEsc=s=>s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+const hit=(hay,kws)=>kwList(kws).some(k=>new RegExp('(^|[^a-z0-9])'+reEsc(k)).test(hay));
+function categorize(r,S){
+  const hay=hayOf(r);
+  for(const c of S.categories){
+    if(c.id==='everyone')return c;
+    if(hit(hay,c.keywords))return c;
+    if(c.id==='first'&&r.visits!=null&&r.visits<=1)return c;
+    if(c.id==='regular'&&r.visits!=null&&r.visits>=S.regularVisits)return c;
+  }
+  return null;
+}
+function occasionOf(hay){
+  if(/(^|\W)anniv/.test(hay))return 'your anniversary';
+  if(/(^|\W)(birthday|bday|b-day)/.test(hay))return 'a birthday';
+  if(/(^|\W)(engage|proposal)/.test(hay))return 'an engagement';
+  if(/(^|\W)graduat/.test(hay))return 'a graduation';
+  if(/(^|\W)promot/.test(hay))return 'a promotion';
+  if(/(^|\W)retire/.test(hay))return 'a retirement';
+  return 'something special';
+}
+function fill(t,r,S,today){
+  const dt=new Date(r.date+'T12:00:00'),near=Math.abs(daysBetween(today||todayISO(),r.date))<=6;
+  const wd=dt.toLocaleDateString('en-US',{weekday:'long'}),md=dt.toLocaleDateString('en-US',{month:'long',day:'numeric'});
+  const v={first:r.first||'there',last:r.last,day:near?wd:md,date:md,party:r.party,occasion:occasionOf(hayOf(r)),sender:S.sender,title:S.title,venue:S.venue,house:S.house};
+  return String(t||'').replace(/\{(\w+)\}/g,(m,k)=>k in v?v[k]:m);
+}
+function buildQueue(rows,S,L,today){
+  const lo=addDays(today,-S.lookbackDays),hi=addDays(today,S.lookaheadDays),out=[];
+  for(const r of rows){
+    if(!r.date||isExcluded(r)||r.date<lo||r.date>hi)continue;
+    const timing=r.date<today?'after':'before',c=categorize(r,S);if(!c)continue;
+    const tpl=c[timing];if(!tpl||!String(tpl.body||'').trim())continue;
+    const key=guestKey(r),id=resId(r),hid=id+'|'+timing,g=L.guests[key],last=g&&g.sent.length?g.sent[g.sent.length-1]:null,handled=L.handled[hid]||null;
+    out.push({r,key,id,hid,cat:c.id,timing,handled,lastSent:last?last.atDay:null,cooling:!handled&&!!last&&daysBetween(last.atDay,today)<S.cooldownDays&&last.resDate!==r.date});
+  }
+  return out;
+}
+function recordVisits(rows,L,today){
+  for(const r of rows){
+    if(!r.date||r.date>today||isExcluded(r))continue;
+    const k=guestKey(r),g=L.guests[k]||(L.guests[k]={name:`${r.first} ${r.last}`.trim(),visits:[],sent:[]});
+    if(!g.visits.includes(r.date))g.visits.push(r.date);
+  }
+}
+const sentWithin=(L,days,today)=>Object.values(L.guests).reduce((n,g)=>n+g.sent.filter(s=>daysBetween(s.atDay,today)<days).length,0);
+const cameBack=L=>Object.values(L.guests).filter(g=>g.sent.some(s=>s.timing==='after'&&g.visits.some(v=>v>s.atDay))).length;
+const tsort=t=>{const m=String(t||'').match(/(\d{1,2}):?(\d{2})?\s*([ap])?/i);if(!m)return '99:99';let h=+m[1];if(m[3]){const pm=/p/i.test(m[3]);if(pm&&h<12)h+=12;if(!pm&&h===12)h=0}return pad(h)+':'+(m[2]||'00')};
+/* ===== END CORE ===== */
+
+const DEFAULTS={
+  sender:'Your name',title:'Director of Experiences',venue:'Tava House',house:'Firebrand',fromEmail:'',sendVia:'mailto',theme:'ember',
+  lookbackDays:10,lookaheadDays:10,cooldownDays:30,regularVisits:4,lines:[],lastBackup:null,quotes:null,focusNote:'',
+  dietaryKeywords:'allerg, gluten, celiac, coeliac, shellfish, peanut, tree nut, nuts, dairy, lactose, vegan, vegetarian, pescatarian, kosher, halal, non-alcoholic, doesn\'t drink, does not drink, no alcohol',
+  categories:[
+    {id:'recovery',name:'Recovery',color:'red',keywords:'comped, complain, sent back, recovery, unhappy, upset, long wait, apolog, issue, negative review',
+      before:null,
+      after:{subject:'Thank you, {first}',body:'Hi {first},\n\nThank you for joining us at {venue} on {day}. I heard parts of your evening fell short of what we hold ourselves to, and I wanted to reach out personally.\n\nI would love the chance to host you again and make it right. Reply here and I will take care of your next reservation myself.\n\nWarmly,\n{sender}\n{title}, {venue}'}},
+    {id:'celebrate',name:'Celebrate',color:'pink',keywords:'birthday, bday, anniversary, anniv, celebrat, engagement, engaged, proposal, graduation, promotion, retirement',
+      before:{subject:'Looking forward to {day}, {first}',body:'Hi {first},\n\nI saw you are celebrating {occasion} with us on {day}, and I wanted to say congratulations ahead of time.\n\nIf there is anything that would make the night feel special, a favorite bottle, a quieter table, a surprise, reply here and I will set it up.\n\nSee you soon,\n{sender}\n{title}, {venue}'},
+      after:{subject:'Thank you for celebrating with us, {first}',body:'Hi {first},\n\nThank you for celebrating {occasion} with us on {day}. It means a lot that you chose {venue} for a night that matters.\n\nI hope it was everything you wanted. If anything stood out, good or otherwise, I would love to hear it.\n\nWarmly,\n{sender}\n{title}, {venue}'}},
+    {id:'badass',name:'Badass',color:'amber',keywords:'bad ass, badass, bad-ass',
+      before:{subject:'See you {day}, {first}',body:'Hi {first},\n\nI saw you are coming back to see us on {day}. The team is looking forward to it.\n\nIf there is anything you want ready when you walk in, reply here and it is done.\n\nSee you soon,\n{sender}\n{title}, {venue}'},
+      after:{subject:'Thank you, {first}',body:'Hi {first},\n\nThank you for coming in on {day}. Guests like you set the tone for the whole room, and the team noticed.\n\nWhenever you are ready for the next one, reply here and I will make sure it is waiting for you.\n\nWarmly,\n{sender}\n{title}, {venue}'}},
+    {id:'first',name:'First visit',color:'teal',keywords:'first time, first visit, first-time, first timer, new guest',
+      before:{subject:'Welcome to {venue}, {first}',body:'Hi {first},\n\nI saw this will be your first time with us on {day}, and I wanted to welcome you personally.\n\nIf there is anything we should know before you arrive, reply here and I will make sure the team is ready for you.\n\nSee you soon,\n{sender}\n{title}, {venue}'},
+      after:{subject:'Thank you for your first visit, {first}',body:'Hi {first},\n\nThank you for joining us for the first time on {day}. I hope {venue} made a strong first impression.\n\nI would love to hear how the evening went. Your reply comes straight to me.\n\nWarmly,\n{sender}\n{title}, {venue}'}},
+    {id:'regular',name:'Regulars',color:'purple',keywords:'regular, vip, investor, friend of the house, industry',
+      before:null,
+      after:{subject:'Always good to see you, {first}',body:'Hi {first},\n\nThank you for coming back to see us on {day}. Guests like you are the reason we do this.\n\nIf there is ever anything I can do for you, a table, a bottle set aside, a special night, reply here and it is done.\n\nWarmly,\n{sender}\n{title}, {venue}'}},
+    {id:'everyone',name:'Everyone else',color:'gray',keywords:'',
+      before:null,
+      after:{subject:'Thank you for joining us, {first}',body:'Hi {first},\n\nThank you for joining us at {venue} on {day}. I hope the evening was a great one.\n\nIf there is anything I can do for your next visit, reply here and I will take care of it.\n\nWarmly,\n{sender}\n{title}, {venue}'}}
+  ]
+};
+const KEYS={S:'gl.settings.v1',L:'gl.ledger.v1',D:'gl.data.v1',M:'gl.maps.v1',H:'gl.hints.v1'};
+let storageOK=true;
+function load(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){storageOK=false;return d}}
+function save(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){storageOK=false}}
+const clone=o=>JSON.parse(JSON.stringify(o));
+let S=Object.assign(clone(DEFAULTS),load(KEYS.S,{}));
+function migrate(){if(!S.categories.some(c=>c.id==='badass')){const at=S.categories.findIndex(c=>c.id==='first'||c.id==='regular'||c.id==='everyone');S.categories.splice(at<0?S.categories.length:at,0,clone(DEFAULTS.categories.find(c=>c.id==='badass')))}}
+migrate();
+let L=load(KEYS.L,{guests:{},handled:{}});
+let D=load(KEYS.D,{rows:[],loadedAt:null,files:[]});
+let Q=[],pending=[],lastRaw=null,cur=null,catsDraft=null;
+const saveS=()=>save(KEYS.S,S),saveL=()=>save(KEYS.L,L),saveD=()=>save(KEYS.D,D);
+
+const THEMES={
+  ember:{name:'Ember',note:'Follows light or dark mode',light:{bg:'#f5f1ea',panel:'#fffdf9',ink:'#1c1916',muted:'#675f55',line:'#e1d8cb',soft:'#efe8dd',accent:'#a23d1c',accentInk:'#ffffff',warnBg:'#fcefd4',warnInk:'#744604'},dark:{bg:'#131110',panel:'#1c1916',ink:'#f4efe8',muted:'#aaa196',line:'#38322b',soft:'#25211d',accent:'#e57a52',accentInk:'#1a0c06',warnBg:'#3b2a0b',warnInk:'#f5d38a'}},
+  chophouse:{name:'Chophouse',note:'Charcoal and brass',tone:'dark',bg:'#121212',panel:'#1c1b19',ink:'#f2ece1',muted:'#a39b8c',line:'#34312c',soft:'#24221f',accent:'#c9a24d',accentInk:'#1a1406',warnBg:'#3a2d10',warnInk:'#f3d27e'},
+  cabernet:{name:'Cabernet',note:'Blush and wine',tone:'light',bg:'#f6efee',panel:'#fffafa',ink:'#2a1418',muted:'#73585c',line:'#e6d3d4',soft:'#f0e2e3',accent:'#6e1e2e',accentInk:'#ffffff',warnBg:'#fcefd4',warnInk:'#744604'},
+  sage:{name:'Sage',note:'Soft green and forest',tone:'light',bg:'#eef1ec',panel:'#fbfcfa',ink:'#1a221c',muted:'#5c6a60',line:'#d5ddd5',soft:'#e2e8e1',accent:'#2f5d46',accentInk:'#ffffff',warnBg:'#fbefd3',warnInk:'#714503'},
+  midnight:{name:'Midnight',note:'Navy and champagne',tone:'dark',bg:'#0f1420',panel:'#171e2d',ink:'#eef1f7',muted:'#9aa5bb',line:'#2a3347',soft:'#1e2638',accent:'#e3c98f',accentInk:'#1a1406',warnBg:'#3a2f12',warnInk:'#f3d68c'},
+  slate:{name:'Slate',note:'Cool gray and ink blue',tone:'light',bg:'#f1f3f6',panel:'#ffffff',ink:'#16202c',muted:'#5b6778',line:'#d9dfe7',soft:'#e7ebf0',accent:'#1f4e8c',accentInk:'#ffffff',warnBg:'#fcefd4',warnInk:'#744604'},
+  paper:{name:'Paper',note:'Black and white, max contrast',tone:'light',bg:'#ffffff',panel:'#ffffff',ink:'#000000',muted:'#3d3d3d',line:'#bdbdbd',soft:'#f0f0f0',accent:'#000000',accentInk:'#ffffff',warnBg:'#fff1c2',warnInk:'#5a3a00'},
+  bourbon:{name:'Bourbon',note:'Oak and amber',tone:'dark',bg:'#17110c',panel:'#211812',ink:'#f5ebe0',muted:'#b3a08c',line:'#3a2b20',soft:'#2a1f17',accent:'#d98a3a',accentInk:'#1a0f05',warnBg:'#3d2a0e',warnInk:'#f5cf86'},
+  copper:{name:'Copper',note:'Gunmetal and copper',tone:'dark',bg:'#141516',panel:'#1d1f21',ink:'#eef0f1',muted:'#9da3a8',line:'#313539',soft:'#25282b',accent:'#c8753f',accentInk:'#1a0c04',warnBg:'#3d2a0e',warnInk:'#f5cf86'},
+  emerald:{name:'Emerald',note:'Deep green and gold',tone:'dark',bg:'#0d1a15',panel:'#13241d',ink:'#ecf3ef',muted:'#93aa9e',line:'#24392f',soft:'#1a2e25',accent:'#d4b36a',accentInk:'#1a1406',warnBg:'#3a2f12',warnInk:'#f3d68c'},
+  harbor:{name:'Harbor',note:'Sea glass and deep teal',tone:'light',bg:'#eef3f3',panel:'#fbfdfd',ink:'#10262a',muted:'#4f666a',line:'#d2e0e1',soft:'#e1ebec',accent:'#0f5c63',accentInk:'#ffffff',warnBg:'#fcefd4',warnInk:'#744604'},
+  rose:{name:'Rose',note:'Blush and rose gold',tone:'light',bg:'#f8eff0',panel:'#fffbfb',ink:'#2b1a1d',muted:'#7a5f63',line:'#ecd8db',soft:'#f2e3e5',accent:'#a84d61',accentInk:'#ffffff',warnBg:'#fcefd4',warnInk:'#744604'},
+  espresso:{name:'Espresso',note:'Latte and dark roast',tone:'light',bg:'#f2ebe3',panel:'#fcf8f3',ink:'#2a1d14',muted:'#6e5c4d',line:'#e1d4c5',soft:'#ebe1d5',accent:'#5a3a22',accentInk:'#ffffff',warnBg:'#fcefd4',warnInk:'#744604'}
+};
+const QUOTES=`Well done is better than well said. | Benjamin Franklin
+Waste no more time arguing about what a good man should be. Be one. | Marcus Aurelius
+What stands in the way becomes the way. | Marcus Aurelius
+Do every act of your life as though it were the very last act of your life. | Marcus Aurelius
+First say to yourself what you would be; and then do what you have to do. | Epictetus
+No man is free who is not master of himself. | Epictetus
+Make the best use of what is in your power, and take the rest as it happens. | Epictetus
+We suffer more often in imagination than in reality. | Seneca
+It is not that we have a short time to live, but that we waste a lot of it. | Seneca
+Do what you can, with what you have, where you are. | Theodore Roosevelt
+Nothing great was ever achieved without enthusiasm. | Ralph Waldo Emerson
+Every man I meet is in some way my superior, and in that I learn of him. | Ralph Waldo Emerson
+Knowing is not enough; we must apply. Willing is not enough; we must do. | Johann Wolfgang von Goethe
+A journey of a thousand miles begins with a single step. | Lao Tzu
+He who has a why to live can bear almost any how. | Friedrich Nietzsche
+The best way out is always through. | Robert Frost
+Well begun is half done. | Aristotle
+We are what we repeatedly do. Excellence, then, is not an act, but a habit. | Will Durant, on Aristotle
+Character is destiny. | Heraclitus
+Be not afraid of growing slowly; be afraid only of standing still. | Chinese proverb`;
+const darkMQ=window.matchMedia?matchMedia('(prefers-color-scheme: dark)'):null;
+function palette(id){const t=THEMES[id]||THEMES.ember;if(!t.light)return {p:t,dark:t.tone==='dark'};const dark=!!(darkMQ&&darkMQ.matches);return {p:dark?t.dark:t.light,dark}}
+function applyTheme(){
+  const {p,dark}=palette(S.theme),R=document.documentElement;R.dataset.tone=dark?'dark':'light';
+  const v={bg:p.bg,panel:p.panel,ink:p.ink,muted:p.muted,line:p.line,soft:p.soft,ember:p.accent,'ember-ink':p.accentInk,'warn-bg':p.warnBg,'warn-ink':p.warnInk};
+  for(const k in v)R.style.setProperty('--'+k,v[k]);
+  const m=document.querySelector('meta[name="theme-color"]');if(m)m.content=p.bg;
+}
+if(darkMQ&&darkMQ.addEventListener)darkMQ.addEventListener('change',applyTheme);
+const themePicker=()=>`<div class="themes">${Object.entries(THEMES).map(([id,t])=>{const {p}=palette(id);return `<button class="theme${S.theme===id?' on':''}" data-theme="${id}" aria-pressed="${S.theme===id}"><span class="sw"><i style="background:${p.bg}"></i><i style="background:${p.panel}"></i><i style="background:${p.accent}"></i><i style="background:${p.ink}"></i></span><span>${t.name}</span><span class="fine" style="margin:0">${t.note}</span></button>`}).join('')}</div>`;
+
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const placeName=()=>[S.venue,S.house].filter(Boolean).join(' › ');
+const fullName=r=>`${r.first} ${r.last}`.trim()||r.email;
+const fmtShort=d=>d?new Date(d+'T12:00:00').toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'}):'No date';
+const fmtLong=d=>d?new Date(d+'T12:00:00').toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'}):'No date';
+const ago=d=>{const n=daysBetween(d,todayISO());return n<=0?'today':n===1?'yesterday':`${n} days ago`};
+const catById=id=>S.categories.find(c=>c.id===id);
+
+/* ---------- toast ---------- */
+let toastT;
+function toast(msg,actionLabel,action){
+  const t=$('#toast');t.innerHTML=`<span>${esc(msg)}</span>${actionLabel?`<button type="button">${esc(actionLabel)}</button>`:''}`;t.hidden=false;
+  if(actionLabel)t.querySelector('button').onclick=()=>{t.hidden=true;action()};
+  clearTimeout(toastT);toastT=setTimeout(()=>t.hidden=true,actionLabel?6000:3000);
+}
+
+/* ---------- files ---------- */
+let xlsxLib=null;
+function loadXLSX(){
+  if(window.XLSX)return Promise.resolve(window.XLSX);
+  return xlsxLib||(xlsxLib=new Promise((ok,no)=>{const s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';s.onload=()=>ok(window.XLSX);s.onerror=()=>{xlsxLib=null;no(new Error('xlsx'))};document.head.appendChild(s)}));
+}
+async function readTable(f){
+  if(/\.xlsx?$/i.test(f.name)){
+    const X=await loadXLSX(),wb=X.read(await f.arrayBuffer(),{type:'array'}),ws=wb.Sheets[wb.SheetNames[0]];
+    return X.utils.sheet_to_json(ws,{header:1,raw:false,defval:''}).map(r=>r.map(v=>String(v??'')));
+  }
+  return parseCSV(await f.text());
+}
+async function handleFiles(list){
+  const files=[...list];if(!files.length)return;
+  const js=files.find(f=>/\.json$/i.test(f.name));if(js)return restoreText(await js.text());
+  pending=[];
+  for(const f of files){
+    let t;try{t=await readTable(f)}catch(e){toast(/xlsx/.test(e.message)?'Could not open the Excel file. Export as CSV instead.':`Could not read ${f.name}`);continue}
+    if(!t||t.length<2){toast(`${f.name} looks empty`);continue}
+    const headers=t[0].map(h=>String(h).trim()),saved=load(KEYS.M,{})[headers.join('|')];
+    pending.push({name:f.name,headers,body:t.slice(1),map:saved||detect(headers)});
+  }
+  if(!pending.length)return;
+  lastRaw=clone(pending);
+  if(mapProblem())showMapping();else ingest();
+}
+function mapProblem(){
+  if(!pending.some(p=>p.map.date!=null))return 'No visit date column found. Pick it below.';
+  if(!pending.some(p=>p.map.date!=null&&(p.map.first!=null||p.map.full!=null)))return 'No guest name column found in the reservation file.';
+  return '';
+}
+function ingest(){
+  const maps=load(KEYS.M,{});for(const p of pending)maps[p.headers.join('|')]=p.map;save(KEYS.M,maps);
+  const rows=merge(pending.map(p=>({type:p.map.date!=null?'res':'guest',rows:toRows(p.body,p.map)})));
+  if(!rows.length){toast('No reservations found in that file');return}
+  D={rows,loadedAt:new Date().toISOString(),files:pending.map(p=>p.name)};
+  recordVisits(rows,L,todayISO());saveD();saveL();pending=[];
+  renderAll();
+  const noEmail=rows.filter(r=>!r.email).length;
+  toast(`${rows.length} reservations loaded${noEmail?`. ${noEmail} ${noEmail===1?'has':'have'} no email`:''}`);
+}
+
+/* ---------- mapping ---------- */
+const sampleVal=(p,i)=>{if(i==null)return '';const r=p.body.find(r=>String(r[i]||'').trim());return r?String(r[i]).slice(0,48):''};
+function showMapping(){
+  $('#mapping').innerHTML=`<div class="mapbox"><h2>Help me read this file</h2>
+  <p class="fine">SevenRooms names its columns its own way, so the ledger needs to know which column holds what. Each row below is one piece of guest info. Pick the column from your file that holds it. The gray text shows what that column contains, so you can check it.</p>
+  <p class="fine">Only a visit date and a guest name are needed. Everything else makes sorting and drafts smarter. You only do this once. It is remembered for next week's file.</p>
+  ${pending.map((p,pi)=>`<div class="mapfile"><h3>${esc(p.name)}</h3><table>${FIELDS.map(([k,label])=>`<tr><td>${label}${k==='date'?' <span class="flag warn">Needed</span>':k==='first'||k==='full'?' <span class="flag warn">Name needed</span>':''}</td><td><select data-pi="${pi}" data-k="${k}"><option value="">Not in this file</option>${p.headers.map((h,i)=>`<option value="${i}"${p.map[k]===i?' selected':''}>${esc(h||`Column ${i+1}`)}</option>`).join('')}</select></td><td class="samp" id="s-${pi}-${k}">${esc(sampleVal(p,p.map[k]))}</td></tr>`).join('')}</table></div>`).join('')}
+  <div class="err" id="mapErr">${esc(mapProblem())}</div>
+  <div class="row" style="justify-content:flex-start"><button class="primary" data-act="applymap">Continue</button><button data-act="cancelmap">Cancel</button></div></div>`;
+  show('mapping');
+}
+$('#mapping').addEventListener('change',e=>{
+  const s=e.target.closest('select');if(!s)return;const p=pending[+s.dataset.pi],k=s.dataset.k;
+  if(s.value==='')delete p.map[k];else p.map[k]=+s.value;
+  $(`#s-${s.dataset.pi}-${k}`).textContent=sampleVal(p,p.map[k]);$('#mapErr').textContent=mapProblem();
+});
+$('#mapping').addEventListener('click',e=>{
+  const a=e.target.closest('[data-act]');if(!a)return;
+  if(a.dataset.act==='applymap'){const m=mapProblem();if(m){$('#mapErr').textContent=m;return}ingest()}
+  if(a.dataset.act==='cancelmap'){pending=[];renderAll()}
+});
+
+/* ---------- board ---------- */
+function show(which){for(const id of ['empty','mapping','board'])$('#'+id).hidden=id!==which}
+function sortItems(a){
+  const b=a.filter(x=>x.timing==='before').sort((x,y)=>(x.r.date+tsort(x.r.time)).localeCompare(y.r.date+tsort(y.r.time)));
+  const f=a.filter(x=>x.timing==='after').sort((x,y)=>(y.r.date+tsort(y.r.time)).localeCompare(x.r.date+tsort(x.r.time)));
+  return b.concat(f);
+}
+function boardOrder(){return S.categories.flatMap(c=>sortItems(Q.filter(x=>x.cat===c.id&&!x.handled&&!x.cooling))).map(x=>x.hid)}
+function cardHTML(x){
+  const r=x.r,diet=hit(hayOf(r),S.dietaryKeywords);
+  return `<button class="card${x.cooling?' cool':''}" data-id="${esc(x.hid)}">
+  <div class="ct"><span class="nm">${esc(fullName(r))}</span><span class="tm ${x.timing}">${x.timing==='before'?'Before visit':'Thank you'}</span></div>
+  <div class="meta">${esc([fmtShort(r.date),r.time,r.party?`${r.party} guests`:''].filter(Boolean).join(' · '))}</div>
+  <div class="flags">${diet?'<span class="flag warn">Dietary</span>':''}${!r.email?'<span class="flag warn">No email</span>':''}${optedIn(r)?'<span class="flag">Opted in</span>':''}${r.visits!=null?`<span class="flag">${r.visits} visit${r.visits===1?'':'s'}</span>`:''}${x.lastSent?`<span class="flag">Emailed ${ago(x.lastSent)}</span>`:''}</div></button>`;
+}
+function renderBoard(){
+  const today=todayISO();Q=buildQueue(D.rows,S,L,today);
+  const live=Q.filter(x=>!x.handled&&!x.cooling),tot=live.length+Q.filter(x=>x.handled).length,done=tot-live.length,pct=tot?Math.round(done/tot*100):0;
+  $('#run').innerHTML=`<div class="prog" role="progressbar" aria-label="Queue progress" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100"><i style="width:${pct}%"></i></div><span class="pl">${live.length?`${done} of ${tot} done`:tot?'Queue clear. Every guest has been handled.':'Nothing to send this week'}</span>${live.length?`<button class="primary" id="btnStart">${done?'Continue queue':'Start queue'}</button>`:''}`;
+  $('#score').innerHTML=[['In the queue',live.length],['Time to clear it',`${live.length?Math.max(1,Math.round(live.length*0.75)):0} min`],['Notes sent this week',sentWithin(L,7,today)],['Came back after a note',cameBack(L)]]
+    .map(([l,v])=>`<div class="metric"><div class="ml">${l}</div><div class="mv">${v}</div></div>`).join('');
+  $('#cols').innerHTML=S.categories.map(c=>{
+    const items=Q.filter(x=>x.cat===c.id),lv=sortItems(items.filter(x=>!x.handled&&!x.cooling)),cool=sortItems(items.filter(x=>x.cooling)),done=items.filter(x=>x.handled);
+    return `<section class="col"><header class="col-h"><span class="chip c-${esc(c.color)}">${esc(c.name)}</span><span class="cnt">${lv.length}</span></header>
+    <div class="list">${lv.map(cardHTML).join('')||'<div class="none">Nothing here this week</div>'}${cool.length?`<div class="sublabel">Emailed recently</div>${cool.map(cardHTML).join('')}`:''}</div>
+    ${done.length?`<div class="done">${done.length} done</div>`:''}</section>`;
+  }).join('');
+}
+function renderAll(){
+  $('#venueTitle').textContent=placeName()?`${placeName()} guest ledger`:'Guest ledger';
+  const ds=D.rows.map(r=>r.date).filter(Boolean).sort();
+  $('#weekLabel').textContent=D.rows.length?`${fmtShort(ds[0])} to ${fmtShort(ds[ds.length-1])} · ${D.rows.length} reservations`:"Load this week's export to begin";
+  $('#btnCols').hidden=!lastRaw;$('#btnExport').hidden=!D.rows.length;
+  const anySent=Object.values(L.guests).some(g=>g.sent.length);
+  $('#backupDot').hidden=!(anySent&&(!S.lastBackup||daysBetween(S.lastBackup,todayISO())>=14));
+  if(D.rows.length){show('board');renderBoard()}else show('empty');
+  banner();
+}
+$('#cols').addEventListener('click',e=>{const c=e.target.closest('.card');if(c)openGuest(c.dataset.id)});
+$('#run').addEventListener('click',e=>{if(e.target.id==='btnStart'){const f=boardOrder()[0];if(f)openGuest(f)}});
+
+/* ---------- guest drawer ---------- */
+function openPanel(el){$('#scrim').hidden=false;el.hidden=false;el.scrollTop=0}
+function closePanels(){$('#scrim').hidden=true;$('#drawer').hidden=true;$('#settings').hidden=true;cur=null}
+const PROVIDERS={
+  mailto:{name:'Default mail app on this device (Apple Mail, Outlook app, Spark)',label:'Open email',url:(t,su,b)=>`mailto:${t}?subject=${enc(su)}&body=${enc(b)}`},
+  gmail:{name:'Gmail',label:'Open in Gmail',tab:true,url:(t,su,b)=>`https://mail.google.com/mail/?view=cm&fs=1${S.fromEmail?`&authuser=${enc(S.fromEmail)}`:''}&to=${enc(t)}&su=${enc(su)}&body=${enc(b)}`},
+  o365:{name:'Outlook, work or school account',label:'Open in Outlook',tab:true,url:(t,su,b)=>`https://outlook.office.com/mail/deeplink/compose?to=${enc(t)}&subject=${enc(su)}&body=${enc(b)}`},
+  outlookcom:{name:'Outlook.com, personal account',label:'Open in Outlook',tab:true,url:(t,su,b)=>`https://outlook.live.com/mail/0/deeplink/compose?to=${enc(t)}&subject=${enc(su)}&body=${enc(b)}`},
+  yahoo:{name:'Yahoo Mail',label:'Open in Yahoo Mail',tab:true,url:(t,su,b)=>`https://compose.mail.yahoo.com/?to=${enc(t)}&subject=${enc(su)}&body=${enc(b)}`},
+  // shortcut: AOL and Zoho compose links only fill the address reliably, so the message is copied for a paste
+  aol:{name:'AOL Mail (copies the message for you to paste)',label:'Open in AOL Mail',tab:true,copy:true,url:t=>`https://mail.aol.com/d/compose/?to=${enc(t)}`},
+  zoho:{name:'Zoho Mail (copies the message for you to paste)',label:'Open in Zoho Mail',tab:true,copy:true,url:t=>`https://mail.zoho.com/mail/compose.do?extsrc=mailto&mode=compose&tp=zb&ct=${enc('mailto:'+t)}`},
+  other:{name:'Any other email (copy and paste)',label:'Copy email',copyOnly:true,url:()=>'#'}
+};
+const enc=encodeURIComponent;
+const provider=()=>PROVIDERS[S.sendVia]||PROVIDERS.mailto;
+function composeURL(to,subj,body){return provider().url(to,subj,body)}
+function queueStats(){const live=Q.filter(q=>!q.handled&&!q.cooling),tot=live.length+Q.filter(q=>q.handled).length;return {live,tot,done:tot-live.length}}
+function dotsHTML(done,tot){return tot&&tot<=30?`<div class="dots" aria-hidden="true">${Array.from({length:tot},(_,i)=>`<i class="${i<done?'on':i===done?'cur':''}"></i>`).join('')}</div>`:'<div class="dots"></div>'}
+function openGuest(hid,catId){
+  const x=Q.find(q=>q.hid===hid);if(!x)return;
+  const c=catById(catId||x.cat),tpl=c&&c[x.timing],r=x.r,hay=hayOf(r),g=L.guests[x.key];
+  cur={x,cat:c?c.id:x.cat};
+  const tagList=[...new Set([...kwList(r.resTags.replace(/[;\n]/g,',')),...kwList(r.clientTags.replace(/[;\n]/g,','))].map(t=>t.replace(/^(res|client):\s*/,'')))].filter(t=>!NOISE.test(t));
+  const oi=optedIn(r),{tot,done}=queueStats(),pos=x.handled?done:Math.min(done+1,tot);
+  const o=occasionOf(hay),occ=c&&c.id==='celebrate'&&o!=='something special'?o.replace(/^(your|a|an) /,'').replace(/^./,ch=>ch.toUpperCase()):'';
+  const sub=[occ,fmtLong(r.date)+(r.time?' at '+r.time:''),r.party?`party of ${r.party}`:''].filter(Boolean).join(' · ');
+  const d=$('#drawer');
+  d.innerHTML=`<div class="fv-top"><button data-act="close">Back to board</button>${dotsHTML(done,tot)}<span class="pl">${pos} of ${tot}</span></div>
+  <div class="fv enter">
+    <div class="eyebrow"><span class="chip c-${esc(c?c.color:'gray')}">${esc(c?c.name:'')}</span><span>${x.timing==='before'?'Before their visit':'Thank you after their visit'}</span></div>
+    <h1 class="fv-name">${esc(fullName(r))}</h1>
+    <div class="fv-sub">${esc(sub)}</div>
+    <div class="flags">${r.visits!=null?`<span class="flag">${r.visits} visit${r.visits===1?'':'s'}</span>`:''}<span class="flag">Last note: ${g&&g.sent.length?esc(ago(g.sent[g.sent.length-1].atDay)):'never'}</span><span class="flag${oi===false?' warn':''}">Marketing opt-in: ${oi===true?'yes':oi===false?'no':'not in file'}</span></div>
+    ${hit(hay,S.dietaryKeywords)?'<div class="alert">Dietary note on file. Brief the kitchen. Mention it only if the guest raised it themselves.</div>':''}
+    ${(tagList.length||r.resNotes||r.clientNotes)?`<details class="know" open><summary>What we know, internal only</summary>
+      ${tagList.length?`<div class="tags">${tagList.map(t=>`<span class="flag">${esc(t)}</span>`).join('')}</div>`:''}
+      ${r.resNotes?`<div class="note"><span class="fine">Reservation: </span>${esc(r.resNotes)}</div>`:''}
+      ${r.clientNotes?`<div class="note"><span class="fine">Guest profile: </span>${esc(r.clientNotes)}</div>`:''}</details>`:''}
+    <div class="composer">
+      <label class="fl">To<input id="gTo" type="email" autocomplete="off" value="${esc(r.email)}" placeholder="guest@email.com"></label>
+      <p class="fine" id="gAddr"></p>
+      <label class="fl">Subject<input id="gSubj" value="${esc(tpl?fill(tpl.subject,r,S):'')}"></label>
+      <label class="fl">Message<textarea id="gBody" rows="11">${esc(tpl?fill(tpl.body,r,S):'')}</textarea></label>
+      <div class="lines"><select id="gLine" aria-label="Insert one of your lines"><option value="">Insert one of your lines</option>${S.lines.map((l,i)=>`<option value="${i}">${esc(l.length>70?l.slice(0,70)+'...':l)}</option>`).join('')}</select><button data-act="saveline">Save highlighted text</button></div>
+      <label class="fl">Category<select id="gCat">${S.categories.map(k=>`<option value="${esc(k.id)}"${k.id===cur.cat?' selected':''}>${esc(k.name)}</option>`).join('')}</select></label>
+      <p class="fine">${provider().copyOnly?'Copy the email, paste it into your mail, then tap Mark sent.':`Opens in ${esc(provider().name.replace(/ \(.*\)$/,''))}${S.fromEmail?` as ${esc(S.fromEmail)}`:', in whatever account you are signed into'}. That marks the guest sent and brings up the next one. You can undo.`} On a keyboard, Command + Enter does the same.</p>
+    </div>
+  </div>
+  <div class="fv-bar"><button data-act="later">Later</button><button data-act="skip">Skip</button><button data-act="copy">Copy</button><button data-act="sent">Mark sent</button><a id="gOpen" class="btn primary"${provider().tab?' target="_blank" rel="noopener"':''}>${esc(provider().label)}</a></div>`;
+  updateHref();openPanel(d);d.scrollTop=0;
+}
+function showDone(){
+  cur=null;const {tot}=queueStats(),d=$('#drawer');
+  d.innerHTML=`<div class="fv-top"><button data-act="close">Back to board</button>${dotsHTML(tot,tot)}<span class="pl">${tot} of ${tot}</span></div>
+  <div class="fv fv-done enter"><div class="eyebrow" style="justify-content:center">Queue clear</div><h1 class="fv-name">That's everyone.</h1>
+  <p class="fv-sub">${sentWithin(L,7,todayISO())} notes sent this week. ${cameBack(L)} guests have come back after a note.</p>
+  <div class="row"><button class="primary" data-act="close">Back to board</button><button data-act="sheet">Open the pre-shift sheet</button></div></div>`;
+  openPanel(d);
+}
+function updateHref(){
+  const to=$('#gTo').value.trim(),a=$('#gOpen');
+  a.href=composeURL(to,$('#gSubj').value,$('#gBody').value);
+  $('#gAddr').textContent=to?'':'No email on file. Add one above, or find it in SevenRooms.';
+}
+function nextAfter(hid){const o=boardOrder(),i=o.indexOf(hid);return o.slice(i+1).concat(o.slice(0,Math.max(i,0))).find(h=>h!==hid)||null}
+function act(kind,note){
+  if(!cur)return;const x=cur.x,next=nextAfter(x.hid),snap=JSON.stringify(L),now=new Date().toISOString(),atDay=todayISO();
+  L.handled[x.hid]={action:kind,at:now,cat:cur.cat};
+  if(kind==='sent'){const g=L.guests[x.key]||(L.guests[x.key]={name:fullName(x.r),visits:[],sent:[]});g.sent.push({at:now,atDay,resId:x.id,resDate:x.r.date,timing:x.timing,cat:cur.cat})}
+  saveL();
+  setTimeout(()=>{
+    renderAll();
+    if(next&&Q.some(q=>q.hid===next&&!q.handled&&!q.cooling))openGuest(next);else showDone();
+    toast((note?note+' ':'')+(kind==='sent'?`${fullName(x.r)} marked sent`:`${fullName(x.r)} skipped`),'Undo',()=>{L=JSON.parse(snap);saveL();renderAll();openGuest(x.hid)});
+  },kind==='sent'?400:0);
+}
+async function copyText(text,fallbackEl,quiet){
+  try{await navigator.clipboard.writeText(text);if(!quiet)toast('Copied')}
+  catch(e){if(fallbackEl){fallbackEl.focus();fallbackEl.select();try{document.execCommand('copy');toast('Copied')}catch(_){toast('Select the text and copy it')}}else toast('Copy is blocked here')}
+}
+$('#drawer').addEventListener('input',e=>{if(['gTo','gSubj','gBody'].includes(e.target.id))updateHref()});
+$('#drawer').addEventListener('change',e=>{
+  if(e.target.id==='gCat'){
+    const c=catById(e.target.value),tpl=c&&c[cur.x.timing];
+    if(!tpl){toast(`${c.name} has no ${cur.x.timing==='before'?'before-visit':'thank-you'} template`);return}
+    cur.cat=c.id;$('#gSubj').value=fill(tpl.subject,cur.x.r,S);$('#gBody').value=fill(tpl.body,cur.x.r,S);updateHref();
+  }
+  if(e.target.id==='gLine'&&e.target.value!==''){
+    const ta=$('#gBody'),line=S.lines[+e.target.value];ta.focus();ta.setRangeText(line,ta.selectionStart,ta.selectionEnd,'end');e.target.value='';updateHref();
+  }
+});
+$('#drawer').addEventListener('click',e=>{
+  if(e.target.id==='gOpen'){
+    const pv=provider(),all=`To: ${$('#gTo').value.trim()}\nSubject: ${$('#gSubj').value}\n\n${$('#gBody').value}`;
+    if(pv.copyOnly){e.preventDefault();copyText(all,$('#gBody'));toast('Email copied. Paste it into your mail, then tap Mark sent.');return}
+    if(!$('#gTo').value.trim()){e.preventDefault();toast('Add an email address first');return}
+    if(pv.copy)copyText(`${$('#gSubj').value}\n\n${$('#gBody').value}`,null,true);
+    act('sent',pv.copy?'Message copied. Paste it into the email.':'');return;
+  }
+  const a=e.target.closest('[data-act]');if(!a)return;
+  const k=a.dataset.act;
+  if(k==='close')closePanels();
+  if(!cur&&k!=='sheet')return;
+  if(k==='sent'||k==='skip')act(k);
+  if(k==='later'||k==='next'){const n=nextAfter(cur.x.hid);if(n)openGuest(n);else toast('That was the last one')}
+  if(k==='sheet'){closePanels();buildSheet()}
+  if(k==='copy')copyText(`${$('#gSubj').value}\n\n${$('#gBody').value}`,$('#gBody'));
+  if(k==='saveline'){
+    const ta=$('#gBody'),t=ta.value.slice(ta.selectionStart,ta.selectionEnd).trim();
+    if(!t){toast('Highlight a sentence in the message first');return}
+    if(!S.lines.includes(t)){S.lines.push(t);saveS()}
+    const sel=$('#gLine');sel.insertAdjacentHTML('beforeend',`<option value="${S.lines.length-1}">${esc(t.length>70?t.slice(0,70)+'...':t)}</option>`);toast('Line saved');
+  }
+});
+
+/* ---------- settings ---------- */
+const COLORS=['red','pink','teal','purple','amber','blue','gray'];
+const tplVal=t=>t||{subject:'',body:''};
+function catEditorHTML(){
+  return catsDraft.map((c,i)=>`<div class="cated" data-i="${i}">
+  <div class="cathead"><input data-f="name" value="${esc(c.name)}" aria-label="Category name"><select data-f="color" aria-label="Color">${COLORS.map(k=>`<option${k===c.color?' selected':''}>${k}</option>`).join('')}</select><button data-act="catup" ${i===0?'hidden':''}>Move up</button><button data-act="catdel">Remove</button></div>
+  ${c.id==='everyone'?'<p class="fine">Catches every guest not matched above. Remove it to ignore unmatched guests.</p>':`<label class="fl">Match these words in tags or notes, separated by commas<textarea data-f="keywords" rows="2">${esc(c.keywords)}</textarea></label>${c.id==='first'?'<p class="fine">Also matches guests with 1 total visit.</p>':''}${c.id==='regular'?'<p class="fine">Also matches guests at or above the regular visit count.</p>':''}`}
+  <details><summary>Before the visit email${c.before&&c.before.body?'':' (off)'}</summary><label class="fl">Subject<input data-f="bs" value="${esc(tplVal(c.before).subject)}" placeholder="Leave empty to skip before-visit notes"></label><label class="fl">Message<textarea data-f="bb" rows="8">${esc(tplVal(c.before).body)}</textarea></label></details>
+  <details><summary>Thank you email${c.after&&c.after.body?'':' (off)'}</summary><label class="fl">Subject<input data-f="as" value="${esc(tplVal(c.after).subject)}"></label><label class="fl">Message<textarea data-f="ab" rows="8">${esc(tplVal(c.after).body)}</textarea></label></details>
+  </div>`).join('');
+}
+function readCats(){
+  return [...document.querySelectorAll('#catEd .cated')].map(el=>{
+    const c=catsDraft[+el.dataset.i],v=f=>{const n=el.querySelector(`[data-f="${f}"]`);return n?n.value:''};
+    const t=(s,b)=>b.trim()?{subject:s.trim(),body:b}:null;
+    return Object.assign({},c,{name:v('name').trim()||c.name,color:v('color'),keywords:c.id==='everyone'?'':v('keywords'),before:t(v('bs'),v('bb')),after:t(v('as'),v('ab'))});
+  });
+}
+function slug(t){return String(t||'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')}
+function downloadFile(name,text,type){
+  try{const u=URL.createObjectURL(new Blob([text],{type})),l=document.createElement('a');l.href=u;l.download=name;document.body.appendChild(l);l.click();l.remove();setTimeout(()=>URL.revokeObjectURL(u),2000);return true}catch(_){return false}
+}
+// spreadsheet apps run cells starting with = + - @ as formulas, so those get a leading apostrophe
+const csvCell=v=>{let t=String(v??'');if(/^[=+\-@]/.test(t))t="'"+t;return /[",\n]/.test(t)?`"${t.replace(/"/g,'""')}"`:t};
+function exportCSV(){
+  const today=todayISO(),byId={};for(const x of buildQueue(D.rows,S,L,today))byId[x.id]=x;
+  const head=['Date','Time','First name','Last name','Email','Party','Category','Note','Status','Status date','Total visits','Marketing opt-in','Dietary flag','Tags'];
+  const rows=D.rows.slice().sort((a,b)=>(a.date+tsort(a.time)).localeCompare(b.date+tsort(b.time))).map(r=>{
+    const x=byId[resId(r)],c=x&&catById(x.cat),h=x&&x.handled,oi=optedIn(r);
+    const status=isExcluded(r)?'Cancelled or no-show':!x?'No note this week':h?(h.action==='sent'?'Sent':'Skipped'):x.cooling?'Emailed recently':'Waiting';
+    return [r.date,r.time,r.first,r.last,r.email,r.party,c?c.name:'',x?(x.timing==='before'?'Before visit':'Thank you'):'',status,h?h.at.slice(0,10):'',r.visits??'',oi===true?'Yes':oi===false?'No':'',hit(hayOf(r),S.dietaryKeywords)?'Yes':'',[r.resTags,r.clientTags].filter(Boolean).join('; ').replace(/\n/g,' ')];
+  });
+  return [head,...rows].map(r=>r.map(csvCell).join(',')).join('\n');
+}
+function backupJSON(){return JSON.stringify({app:'guest-ledger',version:1,exportedAt:new Date().toISOString(),settings:S,ledger:L},null,1)}
+function openSettings(focus){
+  catsDraft=clone(S.categories);
+  const el=$('#settings');
+  el.innerHTML=`<div class="dh"><div class="dn">Settings</div><button data-act="close">Close</button></div>
+  <h3>Signature</h3><div class="grid2">
+  <label class="fl">Your name<input name="sender" value="${esc(S.sender)}"></label>
+  <label class="fl">Title<input name="title" value="${esc(S.title)}"></label>
+  <label class="fl">Restaurant group<input name="venue" value="${esc(S.venue)}"></label>
+  <label class="fl">House<input name="house" list="houses" value="${esc(S.house)}"><datalist id="houses"><option value="Firebrand"><option value="Taproom"><option value="River Room"></datalist></label></div>
+  <p class="fine">The header reads ${esc(placeName()||'your restaurant')}. Use {venue} for the group and {house} for the house in any template.</p>
+  <h3>Sending</h3>
+  <label class="fl">Send from<select name="sendVia">${Object.entries(PROVIDERS).map(([k,pv])=>`<option value="${k}"${S.sendVia===k?' selected':''}>${esc(pv.name)}</option>`).join('')}</select></label>
+  <label class="fl">Your email (optional)<input name="fromEmail" type="email" autocomplete="email" value="${esc(S.fromEmail)}" placeholder="you@example.com"></label>
+  <p class="fine">Nothing is sent from here and no password is needed. The draft opens in the mail you are already signed into. Your email shows on the queue screen, and for Gmail it picks the right account if you are signed into more than one.</p>
+  <h3>Timing</h3><div class="grid2">
+  <label class="fl">Thank-yous for visits in the last (days)<input name="lookbackDays" type="number" min="1" max="60" value="${S.lookbackDays}"></label>
+  <label class="fl">Before-visit notes for the next (days)<input name="lookaheadDays" type="number" min="1" max="60" value="${S.lookaheadDays}"></label>
+  <label class="fl">Wait before emailing a guest again (days)<input name="cooldownDays" type="number" min="0" max="365" value="${S.cooldownDays}"></label>
+  <label class="fl">Visits that make a regular<input name="regularVisits" type="number" min="2" max="100" value="${S.regularVisits}"></label></div>
+  <h3>Categories</h3><p class="fine">Top to bottom is priority. A guest lands in the first category that matches. Fill-ins: {first} {last} {day} {date} {party} {occasion} {sender} {title} {venue} {house}</p>
+  <div id="catEd">${catEditorHTML()}</div><button data-act="addcat">Add category</button>
+  <h3>Dietary flags</h3><label class="fl">Words that flag a dietary note, separated by commas<textarea name="dietaryKeywords" rows="2">${esc(S.dietaryKeywords)}</textarea></label>
+  <h3>Your saved lines</h3>${S.lines.length?`<ul class="linesed">${S.lines.map((l,i)=>`<li><span>${esc(l)}</span><button data-act="delline" data-i="${i}">Remove</button></li>`).join('')}</ul>`:'<p class="fine">Highlight a sentence in any message and tap Save highlighted text to keep it here.</p>'}
+  <h3 id="backupH">Backup</h3><p class="fine">Your sent history lives in this browser. Back it up every couple of weeks to iCloud Drive or OneDrive.${S.lastBackup?` Last backup ${esc(ago(S.lastBackup))}.`:''}</p>
+  <div class="row" style="justify-content:flex-start"><button data-act="dlbackup">Download backup</button><button data-act="cpbackup">Copy backup</button><button data-act="restorefile">Restore from file</button></div>
+  <label class="fl">Or paste a backup here<textarea id="pasteRestore" rows="3" placeholder='{"app":"guest-ledger",...}'></textarea></label><button data-act="restorepaste">Restore pasted backup</button>
+  <h3>Pre-shift quotes</h3><label class="fl">One per line, quote then a | then the author. A different one prints each day.<textarea name="quotes" rows="6">${esc(S.quotes??QUOTES)}</textarea></label>
+  <h3>Data</h3><div class="row" style="justify-content:flex-start"><button data-act="clearweek">Clear this week's guests</button><button data-act="reset">Reset everything</button></div>
+  <h3>Appearance</h3><p class="fine">Changes instantly and is remembered on this device.</p><div id="themeBox">${themePicker()}</div>
+  <div class="savebar"><button class="primary" data-act="savesettings">Save settings</button></div>`;
+  openPanel(el);
+  if(focus==='backup')setTimeout(()=>$('#backupH').scrollIntoView({block:'start'}),50);
+}
+function armed(btn,label,fn){if(btn.dataset.armed){fn();return}btn.dataset.armed='1';const o=btn.textContent;btn.textContent=label;setTimeout(()=>{if(btn.isConnected){delete btn.dataset.armed;btn.textContent=o}},4000)}
+function restoreText(txt){
+  let o;try{o=JSON.parse(txt)}catch(e){toast('That is not a Guest Ledger backup');return}
+  if(!o||o.app!=='guest-ledger'||!o.ledger||!o.settings){toast('That is not a Guest Ledger backup');return}
+  S=Object.assign(clone(DEFAULTS),o.settings);migrate();L=o.ledger;saveS();saveL();applyTheme();closePanels();renderAll();toast('Backup restored');
+}
+$('#settings').addEventListener('click',e=>{
+  const th=e.target.closest('[data-theme]');if(th){S.theme=th.dataset.theme;saveS();applyTheme();$('#themeBox').innerHTML=themePicker();return}
+  const a=e.target.closest('[data-act]');if(!a)return;const k=a.dataset.act,el=$('#settings');
+  if(k==='close')closePanels();
+  if(k==='addcat'){catsDraft=readCats();catsDraft.splice(Math.max(0,catsDraft.findIndex(c=>c.id==='everyone')),0,{id:'c'+Date.now().toString(36),name:'New category',color:'amber',keywords:'',before:null,after:{subject:'Thank you, {first}',body:'Hi {first},\n\n\n\nWarmly,\n{sender}\n{title}, {venue}'}});if(!catsDraft.some(c=>c.id==='everyone'))catsDraft.push(catsDraft.shift());$('#catEd').innerHTML=catEditorHTML()}
+  if(k==='catup'){catsDraft=readCats();const i=+a.closest('.cated').dataset.i;[catsDraft[i-1],catsDraft[i]]=[catsDraft[i],catsDraft[i-1]];$('#catEd').innerHTML=catEditorHTML()}
+  if(k==='catdel'){catsDraft=readCats();catsDraft.splice(+a.closest('.cated').dataset.i,1);$('#catEd').innerHTML=catEditorHTML()}
+  if(k==='delline'){S.lines.splice(+a.dataset.i,1);saveS();openSettings()}
+  if(k==='dlbackup'){
+    if(downloadFile(`guest-ledger-${slug(S.house)||'backup'}-backup-${todayISO()}.json`,backupJSON(),'application/json')){S.lastBackup=todayISO();saveS();renderAll();toast('Backup downloaded. If nothing appeared, use Copy backup.')}
+    else toast('Download blocked here. Use Copy backup.')
+  }
+  if(k==='cpbackup'){copyText(backupJSON());S.lastBackup=todayISO();saveS();renderAll()}
+  if(k==='restorefile')$('#restoreFile').click();
+  if(k==='restorepaste')restoreText($('#pasteRestore').value);
+  if(k==='clearweek')armed(a,'Tap again to clear',()=>{D={rows:[],loadedAt:null,files:[]};saveD();closePanels();renderAll();toast('Guests cleared. Your history is kept.')});
+  if(k==='reset')armed(a,'Tap again to erase everything',()=>{try{Object.values(KEYS).forEach(x=>localStorage.removeItem(x))}catch(_){}S=clone(DEFAULTS);L={guests:{},handled:{}};D={rows:[],loadedAt:null,files:[]};applyTheme();closePanels();renderAll();toast('Everything reset')});
+  if(k==='savesettings'){
+    const v=n=>el.querySelector(`[name="${n}"]`).value,num=(n,lo,hi,d)=>{const x=parseInt(v(n),10);return Number.isFinite(x)?Math.min(hi,Math.max(lo,x)):d};
+    S.sender=v('sender').trim();S.title=v('title').trim();S.venue=v('venue').trim();S.house=v('house').trim();S.fromEmail=v('fromEmail').trim();S.sendVia=v('sendVia');S.dietaryKeywords=v('dietaryKeywords');
+    S.lookbackDays=num('lookbackDays',1,60,10);S.lookaheadDays=num('lookaheadDays',1,60,10);S.cooldownDays=num('cooldownDays',0,365,30);S.regularVisits=num('regularVisits',2,100,4);
+    S.quotes=v('quotes').trim()===QUOTES.trim()?null:v('quotes');
+    S.categories=readCats();saveS();closePanels();renderAll();toast('Settings saved');
+  }
+});
+$('#restoreFile').addEventListener('change',async e=>{const f=e.target.files[0];e.target.value='';if(f)restoreText(await f.text())});
+
+/* ---------- pre-shift sheet ---------- */
+function quoteOfDay(day){
+  const list=String(S.quotes??QUOTES).split('\n').map(l=>l.trim()).filter(Boolean).map(l=>{const i=l.lastIndexOf('|');return i>0?{q:l.slice(0,i).trim(),a:l.slice(i+1).trim()}:{q:l,a:''}});
+  if(!list.length)return null;const n=daysBetween('2026-01-01',day);return list[((n%list.length)+list.length)%list.length];
+}
+function slot(t){const s=tsort(t);if(s==='99:99')return '99:99';const [h,m]=s.split(':').map(Number);return pad(h)+':'+(m<30?'00':'30')}
+function fmt12(s){if(s==='99:99')return 'No time';const [h,m]=s.split(':').map(Number);return `${(h%12)||12}:${pad(m)} ${h<12?'AM':'PM'}`}
+function buildSheet(){
+  const today=todayISO(),hi=addDays(today,S.lookaheadDays);
+  const ups=D.rows.filter(r=>r.date&&r.date>=today&&r.date<=hi&&!isExcluded(r)).sort((a,b)=>(a.date+tsort(a.time)).localeCompare(b.date+tsort(b.time)));
+  const cel=catById('celebrate'),reg=catById('regular'),fir=catById('first'),bad=catById('badass');
+  const isBad=r=>bad&&hit(hayOf(r),bad.keywords),isCel=r=>cel&&hit(hayOf(r),cel.keywords),isReg=r=>reg&&(hit(hayOf(r),reg.keywords)||(r.visits!=null&&r.visits>=S.regularVisits)),isFir=r=>fir&&(hit(hayOf(r),fir.keywords)||(r.visits!=null&&r.visits<=1)),isDiet=r=>hit(hayOf(r),S.dietaryKeywords),isBig=r=>(+r.party||0)>=6;
+  const cut=(t,n)=>t.length>n?t.slice(0,n)+'...':t;
+  const notes=r=>cut([r.resNotes,r.clientNotes].filter(Boolean).join(' · '),240);
+  const occ=r=>{const o=occasionOf(hayOf(r));return o==='something special'?'Celebrating':o.replace(/^(your|a|an) /,'').replace(/^./,c=>c.toUpperCase())};
+  const touch=r=>{const g=L.guests[guestKey(r)];return g?{pre:g.sent.some(s=>s.resDate===r.date&&s.timing==='before'),recov:g.sent.some(s=>s.cat==='recovery')}:{}};
+  const line=(r,head,sub)=>`<li><b>${esc(r.time||'No time')}</b> ${esc(fullName(r))}${r.party?` · party of ${esc(r.party)}`:''}${head?` · ${esc(head)}`:''}${sub?`<div class="sx">${esc(sub)}</div>`:''}</li>`;
+  const sec=(t,list)=>list.length?`<h4>${t} (${list.length})</h4><ul>${list.join('')}</ul>`:'';
+  const byDate={};for(const r of ups)(byDate[r.date]=byDate[r.date]||[]).push(r);
+  const q=quoteOfDay(today);
+  let html=`<h1>${esc(placeName()||'Pre-shift')} pre-shift</h1><p class="fine">Printed ${esc(fmtLong(today))}. Internal only.</p>
+  <h4>Tonight's focus</h4><div class="focus" id="sheetFocus" contenteditable="true" data-ph="Tap to write the one thing the team should nail tonight.">${esc(S.focusNote||'')}</div>`;
+  if(!ups.length)html+=`<p>No upcoming reservations in the loaded file. Load an export that runs through this weekend.</p>`;
+  for(const d of Object.keys(byDate)){
+    const rs=byDate[d],covers=rs.reduce((n,r)=>n+(+r.party||0),0),pace={};
+    for(const r of rs){const k=slot(r.time),p=pace[k]||(pace[k]={c:0,t:0});p.c+=+r.party||0;p.t++}
+    const peak=Math.max(1,...Object.values(pace).map(p=>p.c));
+    const stat=(n,one,many)=>n?`<span class="flag">${n} ${n===1?one:many}</span>`:'';
+    const wrote=rs.map(r=>[r,touch(r)]).filter(([,t])=>t.pre||t.recov).map(([r,t])=>line(r,t.recov?'Second chance':'Got a note from '+(S.sender||'us'),t.recov?'We wrote after a rough visit. Make this one right.':'Greet them by name. They are expecting us.'));
+    html+=`<h2>${esc(fmtLong(d))}</h2>
+    <div class="stats">${stat(rs.length,'reservation','reservations')}${stat(covers,'cover','covers')}${stat(rs.filter(isCel).length,'celebrating','celebrating')}${stat(rs.filter(isBad).length,'badass','badass')}${stat(rs.filter(isFir).length,'first visit','first visits')}${stat(rs.filter(isReg).length,'VIP or regular','VIPs and regulars')}${stat(rs.filter(isDiet).length,'dietary','dietary')}${stat(rs.filter(isBig).length,'large party','large parties')}</div>
+    <h4>Pacing</h4><div class="pace">${Object.keys(pace).sort().map(k=>`<div><b>${fmt12(k)}</b><span>${pace[k].c} covers · ${pace[k].t} ${pace[k].t===1?'table':'tables'}</span><i style="width:${Math.round(pace[k].c/peak*100)}%"></i></div>`).join('')}</div>
+    ${sec('Celebrations',rs.filter(isCel).map(r=>line(r,occ(r),notes(r))))}
+    ${sec('Badass guests',rs.filter(isBad).map(r=>line(r,r.visits!=null?`${r.visits} visits`:'',notes(r))))}
+    ${sec('Dietary and allergies',rs.filter(isDiet).map(r=>line(r,'',cut([r.resTags,r.clientTags,r.resNotes,r.clientNotes].filter(Boolean).join(' · '),240))))}
+    ${sec('VIPs and regulars',rs.filter(isReg).map(r=>line(r,r.visits!=null?`${r.visits} visits`:'',cut(r.clientNotes||r.resNotes,200))))}
+    ${sec('First visits',rs.filter(isFir).map(r=>line(r,'',notes(r))))}
+    ${sec('Large parties',rs.filter(isBig).map(r=>line(r,'',notes(r))))}
+    ${sec('Guests we have written to',wrote)}`;
+  }
+  if(q)html+=`<div class="quote"><q>${esc(q.q)}</q>${q.a?`<span>${esc(q.a)}</span>`:''}</div>`;
+  $('#sheet').innerHTML=html;$('#sheetWrap').hidden=false;
+  $('#sheetFocus').addEventListener('input',e=>{S.focusNote=e.target.innerText.trim();saveS()});
+}
+$('#btnSheet').onclick=()=>{if(!D.rows.length){toast('Load an export first');return}buildSheet()};
+$('#btnCloseSheet').onclick=()=>$('#sheetWrap').hidden=true;
+$('#btnPrint').onclick=()=>{try{window.print()}catch(_){toast('Printing is blocked here. Use Copy.')}};
+$('#btnCopySheet').onclick=()=>copyText($('#sheet').innerText);
+
+/* ---------- sample data ---------- */
+function sampleCSV(){
+  const t=todayISO(),d=n=>addDays(t,n);
+  const H=['First Name','Last Name','Email','Phone','Date','Time','Party Size','Status','Reservation Tags','Client Tags','Reservation Notes','Client Notes','Total Visits'];
+  const R=[
+    ['Marcus','Thompson','marcus.t@example.com','719-555-0101',d(-2),'7:30 PM','4','Complete','','Regular','Ribeye sent back twice, dessert comped by manager','','3'],
+    ['Elena','Reyes','elena.reyes@example.com','',d(5),'7:00 PM','2','Booked','Anniversary','','10th anniversary, would love a quiet table','Shellfish allergy','2'],
+    ['Jordan','Kim','jkim@example.com','',d(6),'8:15 PM','6','Booked','Birthday','','Birthday for his wife Dana','','1'],
+    ['Priya','Shah','priya.shah@example.com','',d(-3),'6:30 PM','2','Complete','First Time Guest','','','Gluten free','1'],
+    ['Sam','Whitaker','sam.w@example.com','',d(-1),'8:00 PM','2','Complete','First Time Guest','','Found us on Instagram','','1'],
+    ['Laura','Hale','laura.hale@example.com','',d(-2),'6:00 PM','4','Complete','','VIP; Bad Ass','Wants the corner booth','Cab lover, always orders the tomahawk','12'],
+    ['Chris','Ortega','c.ortega@example.com','',d(4),'6:45 PM','3','Booked','First Time Guest','','Celiac in party','','0'],
+    ['Danielle','Brooks','dbrooks@example.com','',d(-1),'7:15 PM','2','Complete','Anniversary','','Engagement anniversary','','2'],
+    ['Mike','Novak','mnovak@example.com','',d(-3),'7:45 PM','2','No Show','','','','','1'],
+    ['Ava','Lindqvist','ava.l@example.com','',d(5),'6:15 PM','2','Booked','','Regular','','Nut allergy, tree nuts','6'],
+    ['Tom','Becker','tbecker@example.com','',d(-2),'8:30 PM','5','Complete','','','Long wait for table, apologized at the stand','','2'],
+    ['Grace','Okafor','grace.okafor@example.com','',d(-1),'6:00 PM','2','Complete','','','','','2'],
+    ['Owen','Price','owen.price@example.com','',d(-1),'7:00 PM','4','Complete','','Regular','','Always asks for Sam as his server','7'],
+    ['Ben','Carter','','',d(-3),'7:00 PM','2','Complete','Birthday','','','','1'],
+    ['Nina','Patel','nina.p@example.com','',d(6),'7:30 PM','8','Booked','Celebration','','Promotion dinner for her team','','3'],
+    ['Hector','Ruiz','hruiz@example.com','',d(4),'8:00 PM','2','Cancelled','','','','','1']
+  ];
+  return [H,...R].map(row=>row.map(v=>/[",\n]/.test(v)?`"${v.replace(/"/g,'""')}"`:v).join(',')).join('\n');
+}
+$('#btnSample').onclick=()=>handleFiles([new File([sampleCSV()],'sample-guests.csv',{type:'text/csv'})]);
+
+/* ---------- banners, wiring ---------- */
+function banner(){
+  const b=$('#banner'),h=load(KEYS.H,{}),ios=/iPad|iPhone/.test(navigator.userAgent)||(navigator.maxTouchPoints>1&&/Macintosh/.test(navigator.userAgent));
+  let inFrame=false;try{inFrame=window.top!==window.self}catch(_){inFrame=true}
+  if(!storageOK){b.innerHTML='<span>This browser is not saving data. Use Backup at the end of each session.</span>';b.hidden=false;return}
+  if(ios&&!navigator.standalone&&!inFrame&&!h.installDismissed){b.innerHTML='<span>Add this to your Home Screen so your guest history is never cleared: Share, then Add to Home Screen.</span><button data-act="dismiss">Got it</button>';b.hidden=false;return}
+  b.hidden=true;
+}
+$('#banner').addEventListener('click',e=>{if(e.target.closest('[data-act="dismiss"]')){const h=load(KEYS.H,{});h.installDismissed=true;save(KEYS.H,h);$('#banner').hidden=true}});
+$('#btnLoad').onclick=$('#btnChoose').onclick=()=>$('#file').click();
+$('#file').addEventListener('change',e=>{const f=[...e.target.files];e.target.value='';handleFiles(f)});
+$('#btnSettings').onclick=()=>openSettings();
+$('#btnBackup').onclick=()=>openSettings('backup');
+$('#btnExport').onclick=()=>{const csv=exportCSV();if(downloadFile(`guest-ledger-${slug(S.house)||'guests'}-${todayISO()}.csv`,csv,'text/csv'))toast('Guest list exported. It opens in Excel, Numbers or Google Sheets.');else copyText(csv)};
+$('#btnCols').onclick=()=>{if(!lastRaw){toast('Load the file again to change columns');return}pending=clone(lastRaw);showMapping()};
+$('#scrim').onclick=closePanels;
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&(e.metaKey||e.ctrlKey)&&!$('#drawer').hidden&&$('#gOpen')){e.preventDefault();$('#gOpen').click();return}if(e.key==='Escape'){if(!$('#sheetWrap').hidden)$('#sheetWrap').hidden=true;else closePanels()}});
+const drop=$('#drop');
+document.addEventListener('dragover',e=>{e.preventDefault();drop.classList.add('over')});
+document.addEventListener('dragleave',e=>{if(!e.relatedTarget)drop.classList.remove('over')});
+document.addEventListener('drop',e=>{e.preventDefault();drop.classList.remove('over');if(e.dataTransfer&&e.dataTransfer.files.length)handleFiles(e.dataTransfer.files)});
+applyTheme();renderAll();
+</script>
+</body>
+</html>
