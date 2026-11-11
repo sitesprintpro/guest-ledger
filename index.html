@@ -1,0 +1,1142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Guest Ledger">
+<meta name="theme-color" content="#f5f1ea">
+<title>Guest Ledger</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f5f1ea;--panel:#fffdf9;--ink:#1c1916;--muted:#675f55;--line:#e1d8cb;--soft:#efe8dd;--ember:#a23d1c;--ember-ink:#fff;--warn-bg:#fcefd4;--warn-ink:#744604;--r:10px;--w:700;--serif:"Playfair Display",Georgia,"Times New Roman",serif}
+@media (prefers-color-scheme:dark){:root{--bg:#131110;--panel:#1c1916;--ink:#f4efe8;--muted:#aaa196;--line:#38322b;--soft:#25211d;--ember:#e57a52;--ember-ink:#1a0c06;--warn-bg:#3b2a0b;--warn-ink:#f5d38a}}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:var(--w) 15px/1.45 -apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,Helvetica,Arial,sans-serif;-webkit-text-size-adjust:100%}
+button,input,select,textarea,.btn{font:inherit;color:inherit}
+button,.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:40px;padding:8px 14px;border:1px solid var(--line);border-radius:var(--r);background:var(--panel);cursor:pointer;text-decoration:none;text-align:center;overflow-wrap:anywhere}
+.actions button,.send .btn{white-space:nowrap}
+.run{display:flex;flex-wrap:wrap;gap:14px;align-items:center;margin:4px 0 18px}
+.prog{flex:1 1 220px;height:4px;border-radius:99px;background:var(--soft);overflow:hidden}
+.prog i{display:block;height:100%;background:var(--ember);border-radius:99px;transition:width .4s}
+.pl{font-size:14px;color:var(--muted)}
+.stats{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 10px}
+.pace div{display:grid;grid-template-columns:78px 150px 1fr;gap:8px;align-items:center;font-size:13px;margin:2px 0}
+.pace i{display:block;height:8px;border-radius:4px;background:var(--ember);-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.sx{font-size:13px;color:var(--muted);font-weight:600;margin:1px 0 4px}
+.focus{border:1.5px dashed var(--line);border-radius:10px;padding:10px 12px;min-height:54px;margin:8px 0 4px;outline:none}
+.focus:empty:before{content:attr(data-ph);color:var(--muted)}
+.quote{margin-top:26px;padding-top:14px;border-top:2px solid var(--ink);text-align:center}
+.quote q{display:block;font-size:18px;font-weight:800;font-style:italic;quotes:"\201C" "\201D"}
+.quote span{display:block;margin-top:6px;color:var(--muted);font-size:13px}
+button:hover,.btn:hover{border-color:var(--muted)}
+.primary{background:var(--ember);border-color:var(--ember);color:var(--ember-ink)}
+.primary:hover{border-color:var(--ink)}
+input,select,textarea{width:100%;padding:9px 11px;border:1px solid var(--line);border-radius:var(--r);background:var(--panel)}
+textarea{resize:vertical;line-height:1.5}
+input:focus,select:focus,textarea:focus,button:focus-visible,.btn:focus-visible{outline:2px solid var(--ember);outline-offset:1px}
+h1{font-family:var(--serif);font-size:28px;font-weight:800;margin:0 0 6px}h2{font-family:var(--serif);font-size:22px;font-weight:800;margin:0 0 8px}h3{font-size:15px;font-weight:800;margin:22px 0 8px;text-transform:none}
+.fine{color:var(--muted);font-size:13px;margin:6px 0}
+.top{position:sticky;top:0;z-index:5;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;padding:12px 18px;background:var(--bg);border-bottom:1px solid var(--line)}
+.brand{display:flex;gap:10px;align-items:center}
+.logo .mark{width:64%;height:64%;background:currentColor;-webkit-mask:var(--m) center/contain no-repeat;mask:var(--m) center/contain no-repeat}
+.logo{width:46px;height:46px;flex-shrink:0;border-radius:50%;background:var(--ember);color:var(--ember-ink);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px}
+.title{font-family:var(--serif);font-size:22px;font-weight:800}.sub{font-size:12px;color:var(--muted)}
+.actions{display:flex;flex-wrap:wrap;gap:8px}
+.houses{flex-basis:100%;display:flex;gap:2px;overflow-x:auto;margin:0 -6px -12px;-webkit-overflow-scrolling:touch}
+.htab{padding:10px 14px 9px;border-bottom:3px solid transparent;color:var(--muted);text-decoration:none;white-space:nowrap;font-family:var(--serif);font-size:16px;font-weight:700}
+.htab.on{color:var(--ink);border-bottom-color:var(--ember)}.htab:hover{color:var(--ink)}
+.ver{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;font-size:11px;font-weight:700;padding:2px 7px;border-radius:999px;background:var(--soft);color:var(--muted);vertical-align:middle;margin-left:6px}
+.tg{display:grid;grid-template-columns:150px 1fr;gap:4px 10px;align-items:start;margin:7px 0}.tgl{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding-top:3px}.tgc{display:flex;flex-wrap:wrap;gap:4px}
+@media (max-width:640px){.tg{grid-template-columns:1fr}}
+.flag.g-gold{background:#fbeea0;color:#574600}.flag.g-pink{background:#f7d3ee;color:#74195c}.flag.g-orange{background:#fbd8b4;color:#733605}.flag.g-red{background:#f9d2d5;color:#86131f}.flag.g-mint{background:#d4f4dd;color:#13582a}.flag.g-green{background:#c9eed2;color:#0e5522}.flag.g-gray{background:#e6e8eb;color:#394047}.flag.g-sky{background:#d5ecfb;color:#0b4868}.flag.g-blue{background:#cfe3fb;color:#0a3c73}.flag.g-aqua{background:#cff3ee;color:#0a5650}.flag.g-violet{background:#dfdffd;color:#322f96}.flag.g-forest{background:#d1eadb;color:#1b582d}.flag.g-teal{background:#d2eeee;color:#0d5354}.flag.g-plum{background:#ecdcf5;color:#5a2475}
+[data-tone="dark"] .flag.g-gold{background:#4a3f08;color:#fbe98f}[data-tone="dark"] .flag.g-pink{background:#4f1a40;color:#f6c6ea}[data-tone="dark"] .flag.g-orange{background:#4d2a0b;color:#fbcf9f}[data-tone="dark"] .flag.g-red{background:#561820;color:#f8c3c8}[data-tone="dark"] .flag.g-mint{background:#173d24;color:#bff0cd}[data-tone="dark"] .flag.g-green{background:#14401f;color:#b3eac1}[data-tone="dark"] .flag.g-gray{background:#33383d;color:#d9dde1}[data-tone="dark"] .flag.g-sky{background:#103a52;color:#c4e5fa}[data-tone="dark"] .flag.g-blue{background:#12355e;color:#c0dafa}[data-tone="dark"] .flag.g-aqua{background:#0f403c;color:#bff0e9}[data-tone="dark"] .flag.g-violet{background:#2c2a6b;color:#d4d4fc}[data-tone="dark"] .flag.g-forest{background:#173f25;color:#c2e6cf}[data-tone="dark"] .flag.g-teal{background:#123f40;color:#c2eaea}[data-tone="dark"] .flag.g-plum{background:#3d1f4d;color:#e6cdf3}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--ember)}
+.banner{margin:12px 18px 0;padding:10px 14px;border-radius:var(--r);background:var(--warn-bg);color:var(--warn-ink);display:flex;gap:10px;align-items:center;justify-content:space-between;font-size:14px}
+.banner button{min-height:32px;padding:4px 10px}
+main{padding:22px 26px 40px;max-width:1500px;margin:0 auto}
+.empty{display:flex;justify-content:center;padding-top:6vh}
+.drop{max-width:620px;width:100%;text-align:center;padding:40px 28px;border:2px dashed var(--line);border-radius:18px;background:var(--panel)}
+.drop.over{border-color:var(--ember)}
+.row{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:16px 0}
+.score{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));border-top:1px solid var(--line);border-bottom:1px solid var(--line);margin-bottom:26px}
+.metric{padding:14px 18px;border-right:1px solid var(--line)}.metric:last-child{border-right:0}
+.ml{font-size:11px;color:var(--muted);letter-spacing:.09em;text-transform:uppercase}.mv{font-family:var(--serif);font-size:36px;font-weight:800;line-height:1.15}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:22px;align-items:start}
+.col{border-top:2px solid var(--ink);padding-top:8px}
+.col-h{display:flex;justify-content:space-between;align-items:center;margin:2px 0 4px}
+.cnt{font-size:13px;color:var(--muted)}
+.chip{display:inline-flex;align-items:center;gap:7px;font-size:12px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink)}.chip:before{content:"";width:9px;height:9px;border-radius:50%;background:var(--ci)}
+.list{display:flex;flex-direction:column}
+.card{display:block;width:100%;text-align:left;white-space:normal;padding:12px 6px;border:0;border-bottom:1px solid var(--line);border-radius:0;background:none}.card:hover{background:var(--soft);border-color:var(--line)}
+.card.cool{opacity:.72}
+.ct{display:flex;flex-wrap:wrap;justify-content:space-between;gap:2px 8px;align-items:baseline}.card{overflow-wrap:break-word}
+.nm{font-family:var(--serif);font-size:18px;font-weight:700;line-height:1.25}
+.tm{font-size:11px;padding:2px 0;color:var(--muted);flex-shrink:0;letter-spacing:.04em}
+.tm.before{padding:2px 8px;border-radius:999px;background:var(--ember);color:var(--ember-ink)}
+.meta{font-size:13px;color:var(--muted);margin-top:2px}
+.flags{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+.flags:empty{display:none}
+.flag{font-size:11px;padding:2px 7px;border-radius:6px;background:var(--soft);color:var(--muted)}
+.flag.warn{background:var(--warn-bg);color:var(--warn-ink)}
+.none{font-size:13px;color:var(--muted);padding:6px 4px}
+.sublabel{font-size:12px;color:var(--muted);margin:6px 4px 0}
+.done{font-size:12px;color:var(--muted);margin:8px 4px 2px}
+.c-red{--cb:#fbe3dc;--ci:#8b2814}.c-pink{--cb:#fbe5ee;--ci:#85204c}.c-teal{--cb:#dcf1e8;--ci:#0a5641}.c-purple{--cb:#eae8fc;--ci:#393186}.c-gray{--cb:#ebe5dc;--ci:#4a443d}.c-amber{--cb:#fbeed2;--ci:#754604}.c-blue{--cb:#e1edfa;--ci:#0e4277}
+[data-tone="dark"] .c-red{--cb:#4b1d13;--ci:#f7c3b5}[data-tone="dark"] .c-pink{--cb:#4b1830;--ci:#f6c2d6}[data-tone="dark"] .c-teal{--cb:#0f3a2e;--ci:#a8e6cf}[data-tone="dark"] .c-purple{--cb:#2a2560;--ci:#d0ccf7}[data-tone="dark"] .c-gray{--cb:#34302b;--ci:#d8d1c7}[data-tone="dark"] .c-amber{--cb:#41300c;--ci:#f8d48f}[data-tone="dark"] .c-blue{--cb:#0f2c4d;--ci:#b8d6f5}
+.themes{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.theme{flex-direction:column;align-items:flex-start;justify-content:flex-start;text-align:left;gap:6px;padding:10px;border-width:2px;min-width:0}
+.theme.on{border-color:var(--ember)}
+.sw{display:flex;gap:4px}.sw i{width:22px;height:22px;border-radius:50%;border:1px solid rgba(128,128,128,.35)}
+.scrim{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:20}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(500px,100vw);z-index:21;background:var(--panel);border-left:1px solid var(--line);overflow-y:auto;padding:16px 18px 40px;-webkit-overflow-scrolling:touch}
+.drawer.wide{width:min(760px,100vw)}
+#drawer{position:fixed;inset:0;z-index:21;background:var(--bg);overflow-y:auto;padding:0 0 130px;-webkit-overflow-scrolling:touch}
+.fv-top{position:sticky;top:0;z-index:2;display:flex;align-items:center;gap:14px;padding:12px 20px;background:var(--bg);border-bottom:1px solid var(--line)}
+.dots{display:flex;flex-wrap:wrap;gap:7px;justify-content:center;flex:1}
+.dots i{width:9px;height:9px;border-radius:50%;background:var(--line);transition:transform .2s}
+.dots i.on{background:var(--ink)}.dots i.cur{background:var(--ember);transform:scale(1.4)}
+.fv{max-width:720px;margin:0 auto;padding:30px 22px 0}
+.eyebrow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:12px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.fv-name{font-family:var(--serif);font-size:clamp(32px,5.5vw,48px);font-weight:800;line-height:1.08;margin:10px 0 8px}
+.fv-sub{font-size:17px;color:var(--muted);margin-bottom:6px}
+.know{background:var(--soft);border-radius:14px;padding:6px 16px 10px;margin:18px 0 6px}
+.know summary{font-size:12px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.composer textarea{min-height:250px;font-size:17px;line-height:1.6}
+.fv-bar{position:fixed;left:0;right:0;bottom:0;z-index:22;display:flex;flex-wrap:wrap;gap:8px;justify-content:center;padding:12px 16px calc(12px + env(safe-area-inset-bottom));background:var(--bg);border-top:1px solid var(--line)}
+.fv-bar .btn.primary{min-height:50px;padding:10px 26px;font-size:17px}
+.fv-bar button{min-height:50px}
+.fv-done{text-align:center;padding-top:14vh}
+.enter{animation:fvIn .26s ease-out}
+@keyframes fvIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.enter{animation:none}.prog i,.dots i{transition:none}}
+.dh{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:12px}.dh>button{flex-shrink:0;white-space:nowrap}
+.dn{font-size:21px;font-weight:800}.ds{font-size:13px;color:var(--muted)}
+.ctx{background:var(--soft);border-radius:12px;padding:12px;margin-bottom:12px}
+.kv{display:flex;justify-content:space-between;gap:10px;font-size:14px;padding:3px 0}
+.kv span{color:var(--muted)}
+.alert{margin-top:8px;padding:8px 10px;border-radius:8px;background:var(--warn-bg);color:var(--warn-ink);font-size:13px}
+.internal{margin-top:10px;border-top:1px dashed var(--line);padding-top:8px}
+.il{font-size:11px;color:var(--muted);margin-bottom:6px}
+.tags{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px}
+.note{font-size:14px;white-space:pre-wrap;margin:4px 0}
+.fl{display:block;font-size:13px;color:var(--muted);margin:10px 0}
+.fl input,.fl select,.fl textarea{margin-top:4px;color:var(--ink);font-size:15px}
+.lines{display:grid;grid-template-columns:1fr auto;gap:8px;margin:6px 0 12px}
+.send{display:grid;grid-template-columns:1fr auto;gap:8px}
+.row3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:0 12px}
+.cated{border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin:0 0 10px}
+.cathead{display:grid;grid-template-columns:1fr 120px auto auto;gap:8px;align-items:center}
+details{margin:6px 0}summary{cursor:pointer;font-size:14px;padding:6px 0}
+.linesed li{display:flex;justify-content:space-between;gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid var(--line);font-size:14px}
+.linesed{list-style:none;padding:0;margin:0}
+.stabs{display:flex;gap:4px;overflow-x:auto;margin:0 -18px 6px;padding:0 18px 2px;border-bottom:1px solid var(--line);position:sticky;top:-16px;background:var(--panel);z-index:2}
+.stabs button{border:0;border-bottom:3px solid transparent;border-radius:0;background:none;white-space:nowrap;color:var(--muted);min-height:44px;padding:8px 10px}
+.stabs button.on{color:var(--ink);border-bottom-color:var(--ember)}
+.stab{display:none}.stab.on{display:block}
+.savebar{position:sticky;bottom:-40px;background:var(--panel);padding:12px 0 6px;border-top:1px solid var(--line);margin-top:18px}
+.mapbox{max-width:860px;margin:0 auto;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px}
+.mapfile table{width:100%;border-collapse:collapse;font-size:14px}
+.mapfile td{padding:6px 6px;border-bottom:1px solid var(--line);vertical-align:middle}
+.mapfile td:first-child{width:32%}.samp{color:var(--muted);font-size:12px;width:30%;word-break:break-word}
+.err{color:#b3261e;font-size:14px;min-height:20px;margin-top:8px}
+.toast{position:fixed;left:50%;bottom:92px;transform:translateX(-50%);z-index:40;display:flex;gap:12px;align-items:center;padding:10px 14px;border-radius:12px;background:var(--ink);color:var(--bg);font-size:14px;max-width:92vw}
+.toast button{min-height:30px;padding:4px 10px;background:transparent;color:var(--bg);border-color:var(--bg)}
+#sheetWrap{position:fixed;inset:0;z-index:30;background:var(--bg);overflow-y:auto;padding:18px}
+.sheet-bar{display:flex;gap:8px;justify-content:flex-end;margin-bottom:12px}
+.snav{display:flex;gap:6px;overflow-x:auto;max-width:820px;margin:0 auto 8px;-webkit-overflow-scrolling:touch}.snav button{white-space:nowrap;flex-shrink:0}.snav button.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.wk{padding:12px 0;border-bottom:1px solid var(--line)}.wk .wkn{font-weight:800;font-size:16px}.wk .flags{margin:6px 0}.wk .row{justify-content:flex-start;margin-top:8px}
+#sheet{max-width:820px;margin:0 auto;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:24px}
+#sheet h2{margin-top:18px;border-bottom:2px solid var(--ink);padding-bottom:4px}
+#sheet h4{margin:12px 0 4px;font-size:14px;font-weight:800}
+#sheet ul{margin:0;padding-left:18px}#sheet li{margin:3px 0}
+[hidden]{display:none!important}
+@media (max-width:640px){.top{position:static}main{padding:12px}.cathead{grid-template-columns:1fr 1fr}.send{grid-template-columns:1fr}}
+@media print{body>*{display:none!important}#sheetWrap{display:block!important;position:static;padding:0;background:#fff}#sheetWrap .sheet-bar,#sheetWrap #sheetNav{display:none!important}#sheet{border:0;padding:0;color:#000;background:#fff}#sheet h2{border-color:#000}}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="brand"><div class="logo" id="logo" aria-hidden="true">GL</div><div><div class="title" id="venueTitle">Guest Ledger</div><div class="sub" id="weekLabel"></div></div></div>
+  <nav class="actions">
+    <button id="btnLoad" class="primary">Load Week</button>
+    <button id="btnSheet">Pre-Shift Sheet</button>
+    <button id="btnWorth">Worth Knowing</button>
+    <button id="btnExport" hidden>Export</button>
+    <button id="btnCols" hidden>Match Columns</button>
+    <button id="btnSettings">Settings</button>
+    <button id="btnBackup">Backup <span class="dot" id="backupDot" hidden></span></button>
+  </nav>
+  <nav class="houses" id="houseTabs" aria-label="Houses"></nav>
+</header>
+<div id="banner" class="banner" hidden></div>
+<main>
+  <section id="empty" class="empty">
+    <div class="drop" id="drop">
+      <h1>Drop This Week's SevenRooms Export</h1>
+      <p class="fine" id="emptyHouse"></p>
+      <p class="fine">Reservations from last Thursday through this Sunday. Add the client export too if the reservation file has no email column. CSV or Excel. Select both files at once.</p>
+      <div class="row"><button class="primary" id="btnChoose">Choose File</button><button id="btnSample">Try With Sample Guests</button></div>
+      <p class="fine">Files are read on this device only. Nothing is uploaded anywhere.</p>
+    </div>
+  </section>
+  <section id="mapping" hidden></section>
+  <section id="board" hidden>
+    <div class="run" id="run"></div>
+    <div class="score" id="score"></div>
+    <div class="cols" id="cols"></div>
+  </section>
+</main>
+<div id="scrim" class="scrim" hidden></div>
+<aside id="drawer" hidden aria-label="Guest"></aside>
+<aside id="settings" class="drawer wide" hidden aria-label="Settings"></aside>
+<aside id="worth" class="drawer wide" hidden aria-label="Worth Knowing"></aside>
+<section id="sheetWrap" hidden>
+  <div class="sheet-bar"><button id="btnPrint" class="primary">Print</button><button id="btnCopySheet">Copy</button><button id="btnCloseSheet">Close</button></div>
+  <nav id="sheetNav" aria-label="House and day"></nav>
+  <div id="sheet"></div>
+</section>
+<div id="toast" class="toast" role="status" hidden></div>
+<input type="file" id="file" accept=".csv,.tsv,.txt,.xlsx,.xls,.json,text/csv" multiple hidden>
+<input type="file" id="restoreFile" accept=".json,application/json" hidden>
+
+<script>
+'use strict';
+/* ===== CORE: pure logic, no DOM ===== */
+const MONTHS=['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'];
+const pad=n=>String(n).padStart(2,'0');
+const iso=(y,m,d)=>{const t=new Date(y,m-1,d);return isNaN(t)?'':`${t.getFullYear()}-${pad(t.getMonth()+1)}-${pad(t.getDate())}`};
+const todayISO=()=>{const t=new Date();return iso(t.getFullYear(),t.getMonth()+1,t.getDate())};
+const addDays=(s,n)=>{const [y,m,d]=s.split('-').map(Number);return iso(y,m,d+n)};
+const daysBetween=(a,b)=>{const p=s=>{const [y,m,d]=s.split('-').map(Number);return Date.UTC(y,m-1,d)};return Math.round((p(b)-p(a))/864e5)};
+
+function toISO(s){
+  s=String(s||'').trim();if(!s)return '';
+  let m=s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);if(m)return iso(+m[1],+m[2],+m[3]);
+  m=s.match(/^(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{2,4})/);if(m){let y=+m[3];if(y<100)y+=2000;return iso(y,+m[1],+m[2])}
+  m=s.match(/([A-Za-z]{3,})\.?\s+(\d{1,2})(?!\d)(?:st|nd|rd|th)?,?(?:\s+(\d{4}))?/);
+  if(m){const mi=MONTHS.indexOf(m[1].slice(0,3).toLowerCase());if(mi>=0)return iso(m[3]?+m[3]:new Date().getFullYear(),mi+1,+m[2])}
+  m=s.match(/(\d{1,2})\s+([A-Za-z]{3,})\.?,?(?:\s+(\d{4}))?/);
+  if(m){const mi=MONTHS.indexOf(m[2].slice(0,3).toLowerCase());if(mi>=0)return iso(m[3]?+m[3]:new Date().getFullYear(),mi+1,+m[1])}
+  return '';
+}
+function sniffDelimiter(text){
+  const nl=text.search(/\r?\n/),line=nl>-1?text.slice(0,nl):text,c={',':0,';':0,'\t':0};let q=false;
+  for(const ch of line){if(ch==='"')q=!q;else if(!q&&ch in c)c[ch]++}
+  return Object.keys(c).sort((a,b)=>c[b]-c[a])[0];
+}
+function parseCSV(text,d){
+  text=String(text).replace(/^﻿/,'');d=d||sniffDelimiter(text);
+  const rows=[];let row=[],f='',q=false;
+  const end=()=>{row.push(f);f='';if(row.some(x=>x.trim()!==''))rows.push(row);row=[]};
+  for(let i=0;i<text.length;i++){
+    const c=text[i];
+    if(q){if(c==='"'){if(text[i+1]==='"'){f+='"';i++}else q=false}else f+=c}
+    else if(c==='"')q=true;
+    else if(c===d){row.push(f);f=''}
+    else if(c==='\n'||c==='\r'){if(c==='\r'&&text[i+1]==='\n')i++;end()}
+    else f+=c;
+  }
+  end();return rows;
+}
+// key, label, exact header aliases, contains pattern, exclude pattern
+const FIELDS=[
+  ['first','First name',['first name','firstname','first','guest first name','client first name'],/first ?name/,null],
+  ['last','Last name',['last name','lastname','last','surname','guest last name','client last name'],/last ?name|surname/,null],
+  ['full','Full name',['name','guest name','client name','full name','guest','client'],/(guest|client|full) name/,null],
+  ['email','Email',['email','email address','e mail','guest email','client email'],/e ?mail/,/opt|consent|subscri|market|bounce|valid/],
+  ['phone','Phone',['phone','phone number','mobile','cell','mobile phone'],/phone|mobile/,/opt|consent|sms/],
+  ['date','Visit date',['date','reservation date','res date','visit date','arrival date','day','service date'],/(reservation|res|visit|arrival|service) date|^date/,/creat|updat|modif|book|birth|last|first|anniv|cancel/],
+  ['time','Time',['time','reservation time','arrival time','res time','seating time'],/(reservation|res|arrival|seating) time|^time/,/creat|updat|book|cancel/],
+  ['party','Party size',['party size','covers','guests','pax','size','party','# guests','guest count','num guests'],/party|covers|pax|guest count/,null],
+  ['status','Status',['status','reservation status','res status'],/status/,/opt|market/],
+  ['resTags','Reservation tags',['reservation tags','res tags','tags','booking tags','reservation tag'],/(reservation|res|booking) tag/,null],
+  ['clientTags','Client tags',['client tags','guest tags','profile tags','client tag'],/(client|guest|profile) tag/,null],
+  ['resNotes','Reservation notes',['reservation notes','res notes','notes','booking notes','special requests','requests','request','reservation note'],/(reservation|res|booking) note|request/,null],
+  ['clientNotes','Client notes',['client notes','guest notes','profile notes','client note'],/(client|guest|profile) note/,null],
+  ['visits','Total visits',['total visits','visits','visit count','# visits','number of visits','completed visits','total visit count'],/visit/,/last|first|date|group/],
+  ['optin','Marketing opt-in',['marketing opt in','email opt in','opt in','opted in','email marketing opt in'],/opt ?in|subscri/,null],
+];
+const normH=h=>String(h||'').toLowerCase().replace(/[^a-z0-9#]+/g,' ').trim();
+function detect(headers){
+  const H=headers.map(normH),map={},used=new Set();
+  for(const [k,,ex] of FIELDS){const i=H.findIndex((h,j)=>!used.has(j)&&ex.includes(h));if(i>-1){map[k]=i;used.add(i)}}
+  for(const [k,,,inc,exc] of FIELDS){if(map[k]!=null)continue;const i=H.findIndex((h,j)=>!used.has(j)&&inc.test(h)&&!(exc&&exc.test(h)));if(i>-1){map[k]=i;used.add(i)}}
+  return map;
+}
+function nameCase(s){s=String(s||'').trim();if(!s)return '';if(s===s.toUpperCase()||s===s.toLowerCase())return s.toLowerCase().replace(/(^|[\s'-])(\p{L})/gu,(m,a,b)=>a+b.toUpperCase());return s}
+function toRows(body,map){
+  const g=(r,k)=>map[k]!=null?String(r[map[k]]??'').trim():'';
+  return body.map(r=>{
+    // SevenRooms puts labels like "(VIP)" inside the name; move them into tags
+    const nameTags=[];const strip=s=>s.replace(/\(([^)]*)\)/g,(m,t)=>{if(t.trim())nameTags.push(t.trim());return ''}).replace(/\s+/g,' ').trim();
+    let first=strip(g(r,'first')),last=strip(g(r,'last'));const full=strip(g(r,'full'));
+    if(!first&&full){
+      if(full.includes(',')){const [l,f]=full.split(',');first=(f||'').trim().split(/\s+/)[0]||'';last=last||l.trim()}
+      else{const p=full.split(/\s+/);first=p[0]||'';last=last||p.slice(1).join(' ')}
+    }
+    const em=g(r,'email').toLowerCase(),v=g(r,'visits').replace(/[^\d]/g,''),ct=[g(r,'clientTags'),...nameTags].filter(Boolean).join(', '),oi=g(r,'optin').toLowerCase();
+    return {first:nameCase(first),last:nameCase(last),email:/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)?em:'',phone:g(r,'phone'),date:toISO(g(r,'date')),time:g(r,'time'),party:g(r,'party').replace(/[^\d]/g,''),status:g(r,'status'),resTags:g(r,'resTags'),clientTags:ct,resNotes:g(r,'resNotes'),clientNotes:g(r,'clientNotes'),visits:v===''?null:parseInt(v,10),optin:oi===''?null:/^(y|yes|true|1|opted in|subscribed)$/.test(oi)};
+  }).filter(x=>x.first||x.last||x.email);
+}
+const nameKey=r=>`${r.first} ${r.last}`.toLowerCase().trim();
+const guestKey=r=>r.email||nameKey(r);
+const resId=r=>`${guestKey(r)}|${r.date}|${r.time}`;
+const isExcluded=r=>/cancel|no[\s-]?show/i.test(r.status||'');
+function merge(sets){
+  const res=[],byEmail={},byName={};
+  for(const s of sets){if(s.type==='res')res.push(...s.rows);else for(const g of s.rows){if(g.email)byEmail[g.email]=g;byName[nameKey(g)]=g}}
+  for(const r of res){
+    const g=(r.email&&byEmail[r.email])||byName[nameKey(r)];if(!g)continue;
+    for(const k of ['email','phone','clientTags','clientNotes'])if(!r[k])r[k]=g[k];
+    if(r.visits==null)r.visits=g.visits;
+    if(r.optin==null)r.optin=g.optin;
+  }
+  const seen=new Set();return res.filter(r=>{const id=resId(r);if(seen.has(id))return false;seen.add(id);return true});
+}
+// past-tense SevenRooms auto-tags stay on a profile forever, so they must not trigger Celebrate or First Visit
+const HISTORIC=/celebrated (birthday|anniversary)( local)?|(group )?first timer completed|first order completed|welcome back completed/g;
+const hayOf=r=>[r.resTags,r.clientTags,r.resNotes,r.clientNotes].join(' | ').toLowerCase().replace(HISTORIC,' ');
+const optedIn=r=>r.optin!=null?r.optin:/marketing opt-?ins?\b/.test(hayOf(r))?true:null;
+const NOISE=/^(group )?all( dine in)? guests$|^(res|client):?$/i;
+const kwList=s=>String(s||'').split(',').map(x=>x.trim().toLowerCase()).filter(Boolean);
+const reEsc=s=>s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+const hit=(hay,kws)=>kwList(kws).some(k=>new RegExp('(^|[^a-z0-9])'+reEsc(k)).test(hay));
+// Tag groups as SevenRooms shows them. Order matters: a name in two groups belongs to the first.
+const TAG_GROUPS=[
+  {id:'vip',name:'VIP Client Type',color:'gold',does:'Flag on every card and a VIPs section on the pre-shift sheet. BADASS sorts into the Badass column. VIP, Celebrity, Critic and Investor sort into VIPs and Regulars.',tags:'BADASS|Celebrity|Critic|Investor|VIP'},
+  {id:'attention',name:'Special Attention',color:'pink',does:'Flag on every card and the first section of the pre-shift sheet.',tags:'Alert chef|Alert GM|Badass|House account|Non-English speaking|Wheelchair'},
+  {id:'blacklist',name:'Blacklist',color:'orange',does:'Kept out of the email queue. Flagged on the pre-shift sheet.',tags:'Blacklist'},
+  {id:'dietary',name:'Dietary Restrictions',color:'red',does:'Dietary flag on cards, a kitchen alert in the queue, and the Dietary and Allergies section of the pre-shift sheet. Never written into an email.',tags:'Alcohol Free|Alcohol-free|Allergy|Allium|Celery|Crustacean|Dairy-free|Diabetic|Eggs|Fish|Garlic|Gluten-free|Halal|Hazelnut|Kosher|Lactose Intolerant|Lupin|Milk|Mushrooms|Mustard|Nightshade|Nuts|Paleo|Peanuts|Pescatarian|Pork|Poultry|Pregnant|Red meat|Salt|Seafood|Sesame|Shellfish|Soy|Sulfites|Tomatoes|Tree nuts|Vegan|Vegetarian|Walnuts|Wheat'},
+  {id:'seating',name:'Seating Preference',color:'gray',pref:true,does:'Printed under the guest on the pre-shift sheet.',tags:'Bar area|Booth|Corner|Downstairs|Indoors|Kitchen|Main room|Outdoors|Patio|Quiet table|Round table|Table with a view|Wheelchair access|Window'},
+  {id:'water',name:'Water',color:'gray',pref:true,does:'Printed under the guest on the pre-shift sheet.',tags:'Sparkling water|Complimentary sparkling|Tap water|Still water|Complimentary still'},
+  {id:'wine',name:'Wine',color:'sky',pref:true,does:'Printed under the guest on the pre-shift sheet.',tags:"No Wine|Wine|French|Italian|Spanish|Argentinian|California|Wine lover|Vegan wine|Kosher wine|Gluten-free wine|Organic wine|Dry|Fruity|Full body|Medium|Earthy|BYOB|Wine $|Wine $$|Wine $$$|Wine $$$$|Barbaresco|Barolo|Bordeaux|Cabernet Franc|Cabernet Sauvignon|Cava|Chardonnay|Chenin Blanc|Chianti|Dessert Wine|Grenache|Large Format Wine|Malbec|Merlot|Montepulciano|Moscato|Mourvèdre|Muscat|Napa Valley|Nebbiolo|Petit Verdot|Petite Sirah|Pinot Blanc|Pinot Grigio|Pinot Gris|Pinot Meunier|Pinot Noir|Port|Prosecco|Red|Riesling|Rosé|Sancerre|Sangiovese|Sauvignon Blanc|Sherry|Shiraz|Syrah|Tempranillo|White|Zinfandel"},
+  {id:'spirits',name:'Spirits',color:'blue',pref:true,does:'Printed under the guest on the pre-shift sheet.',tags:"No Alcohol|Whiskey|Vodka|Tequila|Scotch|Rum|Gin|Cognac|Mezcal|Brandy|Liquer|Sake|Absinthe|Courvoisier|D'USSE|Hennessy|Louis XIII|Remy Martin|Beefeater|Bombay|Hendrick's|Spring 44|Tanqueray|Appleton Estate|Bacardi|Captain Morgan|Don Q|Malibu|Ron Zacapa|Shellback|Dewar's|Johnnie Walker|Glenfiddich|Glenlivet|Jura|Laphroaig|Macallan|Avion|Blue Nectar|Clase Azul|Casamigos|DeLeon|Don Julio|Herradura|Jose Cuervo|Milagro|Patron|Sauza|1800|Absolut|Belvedere|Ciroc|Finlandia|Grey Goose|Ketel One|Russian Standard|Skyy|Stoli|Svedka|Three Olives|Ultimat|42 Below|Jack Daniel's|Maker's Mark|Woodford Reserve|Bulleit|Jim Beam|Knob Creek|Crown Royal|Jameson"},
+  {id:'champagne',name:'Champagne',color:'aqua',pref:true,does:'Printed under the guest on the pre-shift sheet.',tags:'Armand de Brignac|Barons De Rothschild|Blanc de Blancs|Blanc de Noirs|Bollinger|Brut|Champagne|Demi-Sec|Dom Pérignon|Doux|Extra Brut|Extra-Dry|G.H. Mumm|Krug|Laurent-Perrier|Louis Roederer|Moët & Chandon|Nicolas Feuillatte|Perrier-Jouët|Pommery|Sec|Taittinger|Veuve Clicquot'},
+  {id:'client',name:'Client Type',color:'mint',does:'Shown in the guest panel. Regular and Industry sort into VIPs and Regulars.',tags:'Always accommodate|Blogger|Colorado Springs|Concierge|Divide|Employee|Florissant|Friend of chef|Friend of employee|Friend of GM|Friend of investor|Friend of owner|Friends & family|Green Mountain Falls|Industry|Influencer|Local|Local Business Owner|Manitou Springs|Press|Regular'},
+  {id:'profession',name:'Profession',color:'green',does:'Shown in the guest panel.',tags:'Media|Finance|Real Estate|Tech|Hospitality|Retail|Government|Film|PR|Fashion'},
+  {id:'source',name:'Source',color:'forest',does:'Shown in the guest panel.',tags:'Source|Hotel Concierge|Executive Assistant|Amex Concierge'},
+  {id:'promo',name:'Promo',color:'violet',does:'Shown in the guest panel.',tags:'Promo'},
+  {id:'auto',name:'SevenRooms Auto-Tags',color:'teal',auto:true,does:'SevenRooms adds these on its own. Negative Review and Negative Feedback sort into Recovery, First Timer into First Visit, Birthday and Anniversary into Celebrate, and Marketing Opt-Ins sets the opt-in flag. Past-tense tags like Celebrated Birthday and First Timer Completed are ignored for sorting.',tags:"Positive Review|Negative Review|Positive Feedback|Negative Feedback|Group Review|Group Feedback|Group Spender|Spender|Repeat Guest|Upcoming Reservation in 30 Days|Visits = 2|Visits = 4|First Timer|First Timer Completed|First Order Completed|It's Been A While|Welcome Back|Welcome Back Completed|Group First Timer|Group First Timer Completed|No Show|Waitlist Abandon|Cancellation|Anniversary Local|Celebrated Anniversary Local|Birthday Local|Celebrated Birthday Local|Birthday|Celebrated Birthday|Booked via Channel Connect|All Guests|Marketing Opt-Ins|All Ordering Guests|All Dine In Guests|Group All Guests|Group Marketing Opt-Ins|Reservation Requests|Marketing Hold Out Group"}
+];
+const TAG_INDEX=new Map();for(const g of TAG_GROUPS)for(const t of g.tags.split('|')){const k=t.toLowerCase();if(!TAG_INDEX.has(k))TAG_INDEX.set(k,{g,name:t})}
+const GROUP_NAMES=new Set(TAG_GROUPS.map(g=>g.name.toLowerCase()).concat(['dietary restrictions','vip client type','special attention','seating preference','client type']));
+function tagNames(r){
+  const out=[],seen=new Set();
+  for(const [field,start] of [[r.resTags,'res'],[r.clientTags,'client']]){let src=start;
+  for(const raw of String(field||'').split(/[,;\n|]/)){
+    const pre=raw.trim().match(/^(res|client)\s*:/i);if(pre)src=pre[1].toLowerCase();
+    let t=raw.trim().replace(/^(res|client)\s*:\s*/i,'');
+    const dash=t.split(/\s+-\s+|:\s*/);if(dash.length>1&&GROUP_NAMES.has(dash[0].trim().toLowerCase()))t=dash.slice(1).join(' ').trim();
+    const k=t.toLowerCase();if(!t||seen.has(k)||NOISE.test(t))continue;seen.add(k);out.push({t,src});
+  }}
+  return out;
+}
+function tagsByGroup(r){
+  const by={};
+  for(const {t,src} of tagNames(r)){const hitT=TAG_INDEX.get(t.toLowerCase()),id=src==='res'&&(!hitT||hitT.g.auto)?'res':hitT?hitT.g.id:'other';(by[id]=by[id]||[]).push(hitT&&id!=='res'?hitT.name:t)}
+  return by;
+}
+const hasGroup=(r,id)=>tagNames(r).some(({t})=>{const h=TAG_INDEX.get(t.toLowerCase());return h&&h.g.id===id});
+const isDietary=(r,S)=>hasGroup(r,'dietary')||hit(hayOf(r),S.dietaryKeywords);
+
+// each house keeps its own playbook: categories, wording and timing
+const bookOf=S=>S.books[slug(S.house)]||(S.books[slug(S.house)]=clone(BOOKS[slug(S.house)]||BOOKS['firebrand-chophouse']));
+function categorize(r,S){
+  const hay=hayOf(r);
+  for(const c of bookOf(S).categories){
+    if(c.id==='everyone')return c;
+    if(hit(hay,c.keywords))return c;
+    if(c.id==='first'&&r.visits!=null&&r.visits<=1)return c;
+    if(c.id==='regular'&&r.visits!=null&&r.visits>=S.regularVisits)return c;
+  }
+  return null;
+}
+function occasionOf(hay){
+  if(/(^|\W)anniv/.test(hay))return 'your anniversary';
+  if(/(^|\W)(birthday|bday|b-day)/.test(hay))return 'a birthday';
+  if(/(^|\W)(engage|proposal)/.test(hay))return 'an engagement';
+  if(/(^|\W)graduat/.test(hay))return 'a graduation';
+  if(/(^|\W)promot/.test(hay))return 'a promotion';
+  if(/(^|\W)retire/.test(hay))return 'a retirement';
+  return 'something special';
+}
+function fill(t,r,S,today){
+  const dt=new Date(r.date+'T12:00:00'),near=Math.abs(daysBetween(today||todayISO(),r.date))<=6;
+  const wd=dt.toLocaleDateString('en-US',{weekday:'long'}),md=dt.toLocaleDateString('en-US',{month:'long',day:'numeric'});
+  const v={first:r.first||'there',last:r.last,day:near?wd:md,date:md,party:r.party,occasion:occasionOf(hayOf(r)),sender:S.sender,title:S.title,venue:S.venue,house:S.house};
+  return String(t||'').replace(/\{(\w+)\}/g,(m,k)=>k in v?v[k]:m);
+}
+function buildQueue(rows,S,L,today){
+  const bk=bookOf(S),lo=addDays(today,-S.lookbackDays),hi=addDays(today,bk.lookaheadDays),out=[];
+  for(const r of rows){
+    if(!r.date||isExcluded(r)||r.date<lo||r.date>hi||hasGroup(r,'blacklist'))continue;
+    const timing=r.date<today?'after':'before',c=categorize(r,S);if(!c)continue;
+    const tpl=c[timing];if(!tpl||!String(tpl.body||'').trim())continue;
+    const key=guestKey(r),id=resId(r),hid=id+'|'+timing,g=L.guests[key],last=g&&g.sent.length?g.sent[g.sent.length-1]:null,handled=L.handled[hid]||null;
+    const due=timing==='after'?addDays(r.date,bk.afterDays):addDays(r.date,-bk.beforeDays);
+    out.push({r,key,id,hid,cat:c.id,timing,handled,due,later:!handled&&due>today,lastSent:last?last.atDay:null,cooling:!handled&&!!last&&daysBetween(last.atDay,today)<S.cooldownDays&&last.resDate!==r.date});
+  }
+  return out;
+}
+function recordVisits(rows,L,today){
+  for(const r of rows){
+    if(!r.date||r.date>today||isExcluded(r))continue;
+    const k=guestKey(r),g=L.guests[k]||(L.guests[k]={name:`${r.first} ${r.last}`.trim(),visits:[],sent:[]});
+    if(!g.visits.includes(r.date))g.visits.push(r.date);
+  }
+}
+const sentWithin=(L,days,today)=>Object.values(L.guests).reduce((n,g)=>n+g.sent.filter(s=>daysBetween(s.atDay,today)<days).length,0);
+const cameBack=L=>Object.values(L.guests).filter(g=>g.sent.some(s=>s.timing==='after'&&g.visits.some(v=>v>s.atDay))).length;
+const tsort=t=>{const m=String(t||'').match(/(\d{1,2}):?(\d{2})?\s*([ap])?/i);if(!m)return '99:99';let h=+m[1];if(m[3]){const pm=/p/i.test(m[3]);if(pm&&h<12)h+=12;if(!pm&&h===12)h=0}return pad(h)+':'+(m[2]||'00')};
+/* ===== END CORE ===== */
+
+const DEFAULTS={
+  sender:'Your name',title:'Director of Experiences',venue:'Tava House',house:'Firebrand Chophouse',houses:['Firebrand Chophouse','Taproom','River Room','Bar Above the Clouds'],fromEmail:'',sendVia:'mailto',theme:'ember',
+  lookbackDays:10,cooldownDays:30,regularVisits:4,lines:[],lastBackup:null,quotes:null,
+  dietaryKeywords:'allerg, gluten, celiac, coeliac, shellfish, peanut, tree nut, nuts, dairy, lactose, vegan, vegetarian, pescatarian, kosher, halal, non-alcoholic, doesn\'t drink, does not drink, no alcohol',
+  books:{},notes:{}
+};
+
+// starting playbooks. Each house can be edited in Settings and reset back to these.
+const mk=greet=>(subject,close,...p)=>({subject,body:`${greet} {first},\n\n${p.join('\n\n')}\n\n${close},\n{sender}\n{title}, {venue}`});
+const BOOKS=(()=>{const tap=mk('Hey'),bar=mk('Hi'),rr=mk('Hi');return {
+  'firebrand-chophouse':{afterDays:1,beforeDays:3,lookaheadDays:10,categories:[
+    {id:'recovery',name:'Recovery',color:'red',keywords:'comped, complain, sent back, recovery, unhappy, upset, long wait, apolog, issue, negative review, negative feedback',
+      before:null,
+      after:{subject:'Thank you, {first}',body:'Hi {first},\n\nThank you for joining us at {venue} on {day}. I heard parts of your evening fell short of what we hold ourselves to, and I wanted to reach out personally.\n\nI would love the chance to host you again and make it right. Reply here and I will take care of your next reservation myself.\n\nWarmly,\n{sender}\n{title}, {venue}'}},
+    {id:'celebrate',name:'Celebrate',color:'pink',keywords:'birthday, bday, anniversary, anniv, celebrat, engagement, engaged, proposal, graduation, promotion, retirement',
+      before:{subject:'Looking forward to {day}, {first}',body:'Hi {first},\n\nI saw you are celebrating {occasion} with us on {day}, and I wanted to say congratulations ahead of time.\n\nIf there is anything that would make the night feel special, a favorite bottle, a quieter table, a surprise, reply here and I will set it up.\n\nSee you soon,\n{sender}\n{title}, {venue}'},
+      after:{subject:'Thank you for celebrating with us, {first}',body:'Hi {first},\n\nThank you for celebrating {occasion} with us on {day}. It means a lot that you chose {venue} for a night that matters.\n\nI hope it was everything you wanted. If anything stood out, good or otherwise, I would love to hear it.\n\nWarmly,\n{sender}\n{title}, {venue}'}},
+    {id:'badass',name:'Badass',color:'amber',keywords:'bad ass, badass, bad-ass',
+      before:{subject:'See you {day}, {first}',body:'Hi {first},\n\nI saw you are coming back to see us on {day}. The team is looking forward to it.\n\nIf there is anything you want ready when you walk in, reply here and it is done.\n\nSee you soon,\n{sender}\n{title}, {venue}'},
+      after:{subject:'Thank you, {first}',body:'Hi {first},\n\nThank you for coming in on {day}. Guests like you set the tone for the whole room, and the team noticed.\n\nWhenever you are ready for the next one, reply here and I will make sure it is waiting for you.\n\nWarmly,\n{sender}\n{title}, {venue}'}},
+    {id:'first',name:'First Visit',color:'teal',keywords:'first time, first visit, first-time, first timer, new guest',
+      before:{subject:'Welcome to {venue}, {first}',body:'Hi {first},\n\nI saw this will be your first time with us on {day}, and I wanted to welcome you personally.\n\nIf there is anything we should know before you arrive, reply here and I will make sure the team is ready for you.\n\nSee you soon,\n{sender}\n{title}, {venue}'},
+      after:{subject:'Thank you for your first visit, {first}',body:'Hi {first},\n\nThank you for joining us for the first time on {day}. I hope {venue} made a strong first impression.\n\nI would love to hear how the evening went. Your reply comes straight to me.\n\nWarmly,\n{sender}\n{title}, {venue}'}},
+    {id:'regular',name:'VIPs and Regulars',color:'purple',keywords:'regular, vip, celebrity, critic, investor, friend of the house, industry',
+      before:null,
+      after:{subject:'Always good to see you, {first}',body:'Hi {first},\n\nThank you for coming back to see us on {day}. Guests like you are the reason we do this.\n\nIf there is ever anything I can do for you, a table, a bottle set aside, a special night, reply here and it is done.\n\nWarmly,\n{sender}\n{title}, {venue}'}},
+    {id:'everyone',name:'Everyone Else',color:'gray',keywords:'',
+      before:null,
+      after:{subject:'Thank you for joining us, {first}',body:'Hi {first},\n\nThank you for joining us at {venue} on {day}. I hope the evening was a great one.\n\nIf there is anything I can do for your next visit, reply here and I will take care of it.\n\nWarmly,\n{sender}\n{title}, {venue}'}}
+  ]},
+  // casual and food-first
+  'taproom':{afterDays:1,beforeDays:2,lookaheadDays:10,categories:[
+    {id:'recovery',name:'Recovery',color:'red',keywords:'comped, complain, sent back, recovery, unhappy, upset, long wait, apolog, issue, negative review, negative feedback',before:null,
+      after:tap('Thanks for coming in, {first}','Thanks','Thanks for coming into the {house} on {day}. I heard part of your visit was not what it should have been, and I wanted to reach out myself.','I would love another shot at it. Reply here and I will make sure your next visit is on point.')},
+    {id:'celebrate',name:'Celebrate',color:'pink',keywords:'birthday, bday, anniversary, anniv, celebrat, engagement, engaged, proposal, graduation, promotion, retirement',
+      before:tap('See you {day}, {first}','See you soon','I saw you are celebrating {occasion} with us at the {house} on {day}. Congratulations.','If you want anything ready when you get here, room for the whole crew, something for the guest of honor, reply here and I will set it up.'),
+      after:tap('Thanks for celebrating with us, {first}','Cheers','Thanks for celebrating {occasion} at the {house} on {day}. I hope it was a good one.','If anything stood out, the food, the drinks, the people, I would love to hear it.')},
+    {id:'badass',name:'Badass',color:'amber',keywords:'bad ass, badass, bad-ass',
+      before:tap('See you {day}, {first}','See you soon','I saw you are coming back to the {house} on {day}. The team is glad to have you in.','If you want anything ready when you walk in, reply here and it is done.'),
+      after:tap('Good to see you, {first}','Cheers','Thanks for coming in on {day}. You make the room better every time, and the team notices.','Whenever you are ready for the next one, reply here and I will have it waiting.')},
+    {id:'first',name:'First Visit',color:'teal',keywords:'first time, first visit, first-time, first timer, new guest',
+      before:tap('Welcome to the {house}, {first}','See you soon','Looks like {day} is your first time at the {house}. Welcome.','If there is anything we should know before you get here, reply here and I will pass it to the team.'),
+      after:tap('Thanks for coming in, {first}','Cheers','Thanks for trying the {house} on {day}. I would love to know what you ordered and how it was.','Your reply comes straight to me.')},
+    {id:'regular',name:'Regulars and VIPs',color:'purple',keywords:'regular, vip, celebrity, critic, investor, friend of the house, industry',before:null,
+      after:tap('Always good to see you, {first}','Cheers','Thanks for coming back in on {day}. Regulars like you are the heart of the {house}.','If there is ever anything I can do for you, reply here and it is done.')},
+    {id:'everyone',name:'Everyone Else',color:'gray',keywords:'',before:null,
+      after:tap('Thanks for coming in, {first}','Cheers','Thanks for coming into the {house} on {day}. I hope you left full and happy.','If you have a minute, I would love to hear how it was. Your reply comes straight to me.')}
+  ]},
+  // banquets: every row is an event and the guest is its host
+  'river-room':{afterDays:2,beforeDays:10,lookaheadDays:45,events:true,categories:[
+    {id:'recovery',name:'Recovery',color:'red',keywords:'comped, complain, sent back, recovery, unhappy, upset, long wait, apolog, issue, negative review, negative feedback',before:null,
+      after:rr('About your event, {first}','Warmly','Thank you for hosting your event in the {house} on {date}. I heard parts of it fell short of what we promised, and I wanted to reach out personally.','I would like to hear it from you directly and make it right. Reply here, or tell me a good time to call.')},
+    {id:'memorial',name:'Celebration of Life',color:'blue',keywords:'celebration of life, memorial, funeral, remembrance, in memory',
+      before:rr('Your gathering on {date}','With care','I wanted to reach out before your gathering in the {house} on {day}. My condolences to you and your family.','If you can, reply with your expected headcount, any allergies or dietary needs, and anything that would help the day feel right, photos, music, a place for people to speak. I will make sure the team has all of it so the details are off your plate.'),
+      after:rr('Thinking of you, {first}','With care','Thank you for letting us host your family in the {house} on {day}. I hope the day gave everyone the time together they needed.','If there is anything we can still do for you, reply here.')},
+    {id:'wedding',name:'Weddings',color:'pink',keywords:'wedding, rehearsal, bridal, bride, groom, engagement party, elopement, vow renewal',
+      before:rr('Your {house} event on {date}','Talk soon','Your celebration in the {house} is coming up on {day}, and I wanted to check in personally. Congratulations.','When you get a chance, reply with three things: your final headcount, any allergies or dietary needs in the group, and the moments we should plan around, toasts, cake, a first dance, a grand entrance. I will make sure the whole team has it.'),
+      after:rr('Congratulations, {first}','Warmly','Thank you for trusting us with your celebration in the {house} on {day}. It was an honor to be part of it.','If you have photos from the night, I would love to see them. And if anything could have been better, I want to hear that too.')},
+    {id:'corporate',name:'Corporate and Groups',color:'purple',keywords:'corporate, company, business, team, holiday party, office, conference, offsite, retreat, meeting, luncheon, nonprofit, fundraiser, gala, association, club, chamber',
+      before:rr('Your {house} event on {date}','Talk soon','Your event in the {house} is coming up on {day}, and I wanted to check in personally.','When you get a chance, reply with your final headcount, any allergies or dietary needs, any setup or AV you need, and who our point person is on the day. I will make sure the whole team has it.'),
+      after:rr('Thank you, {first}','Warmly','Thank you for hosting your group in the {house} on {day}. I hope it landed the way you wanted.','If anything could have been better, I want to hear it. And if you are already thinking about the next one, reply here and we can look at dates together.')},
+    {id:'milestone',name:'Milestones',color:'teal',keywords:'birthday, bday, anniversary, anniv, graduation, retirement, reunion, shower, quince, mitzvah, baptism, christening, engagement, promotion, celebrat',
+      before:rr('Your {house} event on {date}','Talk soon','I saw you are celebrating {occasion} in the {house} on {day}, and I wanted to check in personally.','When you get a chance, reply with your final headcount, any allergies or dietary needs, and anything we should plan around, a cake, a toast, a surprise entrance. I will make sure the whole team has it.'),
+      after:rr('Thank you for celebrating with us, {first}','Warmly','Thank you for celebrating {occasion} in the {house} on {day}. It means a lot that you chose us for it.','I hope it was everything you wanted. If you have photos, I would love to see them, and if anything could have been better, I want to hear that too.')},
+    {id:'everyone',name:'All Other Events',color:'gray',keywords:'',
+      before:rr('Your {house} event on {date}','Talk soon','Your event in the {house} is coming up on {day}, and I wanted to check in personally.','When you get a chance, reply with your final headcount, any allergies or dietary needs, and anything about the timeline we should know. I will make sure the whole team has it.'),
+      after:rr('Thank you, {first}','Warmly','Thank you for hosting your event in the {house} on {day}. I hope it was everything you planned.','If anything could have been better, I want to hear it. And when the next occasion comes up, reply here and I will look after it myself.')}
+  ]},
+  // a bar with a fine dining standard
+  'bar-above-the-clouds':{afterDays:1,beforeDays:3,lookaheadDays:10,categories:[
+    {id:'recovery',name:'Recovery',color:'red',keywords:'comped, complain, sent back, recovery, unhappy, upset, long wait, apolog, issue, negative review, negative feedback',before:null,
+      after:bar('Thank you, {first}','Warmly','Thank you for joining us at {house} on {day}. I heard part of your night was not at the level we hold ourselves to, and I wanted to reach out personally.','I would love to have you back and make it right. Reply here and I will look after your next visit myself.')},
+    {id:'celebrate',name:'Celebrate',color:'pink',keywords:'birthday, bday, anniversary, anniv, celebrat, engagement, engaged, proposal, graduation, promotion, retirement',
+      before:bar('Looking forward to {day}, {first}','See you soon','I saw you are celebrating {occasion} with us at {house} on {day}. Congratulations ahead of time.','If there is anything that would make the night, a bottle on ice when you sit down, a favorite cocktail, a good seat, reply here and I will set it up.'),
+      after:bar('Thank you for celebrating with us, {first}','Warmly','Thank you for celebrating {occasion} at {house} on {day}. It means a lot that you chose us for a night that matters.','I hope it was everything you wanted. If anything stood out, good or otherwise, I would love to hear it.')},
+    {id:'date',name:'Date Night',color:'blue',keywords:'date night, romantic',
+      before:bar('Looking forward to {day}, {first}','See you soon','I saw you have a night out planned with us at {house} on {day}.','If there is anything that would make it, a quieter seat, a first round ready when you arrive, reply here and it is done.'),
+      after:bar('Thank you, {first}','Warmly','Thank you for spending your evening at {house} on {day}. I hope the night was a good one for you both.','When you are ready for the next one, reply here and I will save you a good seat.')},
+    {id:'badass',name:'Badass',color:'amber',keywords:'bad ass, badass, bad-ass',
+      before:bar('See you {day}, {first}','See you soon','I saw you are coming back to see us at {house} on {day}. The team is looking forward to it.','If there is anything you want ready when you walk in, reply here and it is done.'),
+      after:bar('Thank you, {first}','Warmly','Thank you for coming in on {day}. Guests like you set the tone for the whole room, and the team noticed.','Whenever you are ready for the next one, reply here and I will make sure it is waiting for you.')},
+    {id:'first',name:'First Visit',color:'teal',keywords:'first time, first visit, first-time, first timer, new guest',
+      before:bar('Welcome to {house}, {first}','See you soon','I saw {day} will be your first time at {house}, and I wanted to welcome you personally.','If there is anything we should know before you arrive, a spirit you love, something you do not drink, reply here and the bar will be ready for you.'),
+      after:bar('Thank you for your first visit, {first}','Warmly','Thank you for joining us at {house} for the first time on {day}. I hope we made a strong first impression.','I would love to hear what you were drinking and how the evening went. Your reply comes straight to me.')},
+    {id:'regular',name:'VIPs and Regulars',color:'purple',keywords:'regular, vip, celebrity, critic, investor, friend of the house, industry',before:null,
+      after:bar('Always good to see you, {first}','Warmly','Thank you for coming back to {house} on {day}. Guests like you are the reason we do this.','If there is ever anything I can do for you, a seat held, a bottle set aside, a special night, reply here and it is done.')},
+    {id:'everyone',name:'Everyone Else',color:'gray',keywords:'',before:null,
+      after:bar('Thank you for joining us, {first}','Warmly','Thank you for joining us at {house} on {day}. I hope the evening was a great one.','If there is anything I can do for your next visit, reply here and I will take care of it.')}
+  ]}
+}})();
+const KEYS={S:'gl.settings.v1',M:'gl.maps.v1',H:'gl.hints.v1'};
+const VERSION='Beta 4';
+const EMBLEMS={"taproom": "data:image/webp;base64,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", "river-room": "data:image/webp;base64,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", "firebrand-chophouse": "data:image/webp;base64,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", "bar-above-the-clouds": "data:image/webp;base64,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"};
+let storageOK=true;
+function load(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){storageOK=false;return d}}
+function save(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){storageOK=false}}
+const clone=o=>JSON.parse(JSON.stringify(o));
+let S=Object.assign(clone(DEFAULTS),load(KEYS.S,{}));
+function migrate(){
+  if(S.categories&&!S.categories.some(c=>c.id==='badass')){const at=S.categories.findIndex(c=>c.id==='first'||c.id==='regular'||c.id==='everyone');S.categories.splice(at<0?S.categories.length:at,0,clone(BOOKS['firebrand-chophouse'].categories.find(c=>c.id==='badass')))}
+  if((S.v||0)<3){
+    const rename={'First visit':'First Visit','Everyone else':'Everyone Else','Regulars':'VIPs and Regulars'};
+    for(const c of S.categories||[]){if(rename[c.name])c.name=rename[c.name];if(c.id==='regular'&&!/celebrity/.test(c.keywords))c.keywords+=', celebrity, critic';if(c.id==='recovery'&&!/negative feedback/.test(c.keywords))c.keywords+=', negative feedback'}
+    if(!S.house||S.house==='Firebrand')S.house='Firebrand Chophouse';
+    if(!S.houses.includes(S.house))S.houses.unshift(S.house);
+    try{for(const kind of ['data','ledger']){const old=localStorage.getItem(`gl.${kind}.v1`),nk=`gl.${kind}.v1.${slug(S.house)}`;if(old&&!localStorage.getItem(nk))localStorage.setItem(nk,old);if(old)localStorage.removeItem(`gl.${kind}.v1`)}}catch(_){}
+    S.v=3;save(KEYS.S,S);
+  }
+  if(S.v<4){
+    // before Beta 4 one set of categories served every house. It was written for Firebrand, so it stays there.
+    if(S.categories)S.books['firebrand-chophouse']={categories:S.categories,afterDays:S.afterDays??1,beforeDays:S.beforeDays??3,lookaheadDays:S.lookaheadDays??10};
+    if(S.focusNote)(S.notes[slug(S.house)]=S.notes[slug(S.house)]||{})[todayISO()]=S.focusNote;
+    for(const k of ['categories','afterDays','beforeDays','lookaheadDays','focusNote'])delete S[k];
+    S.v=4;save(KEYS.S,S);
+  }
+}
+migrate();
+const houseKey=kind=>`gl.${kind}.v1.${slug(S.house)}`;
+const fromHash=()=>{const h=decodeURIComponent(location.hash.slice(1));return S.houses.find(n=>slug(n)===h)};
+{const h=fromHash();if(h)S.house=h}
+let L=load(houseKey('ledger'),{guests:{},handled:{}});
+let D=load(houseKey('data'),{rows:[],loadedAt:null,files:[]});
+let Q=[],pending=[],lastRaw=null,cur=null,catsDraft=null;
+const book=()=>bookOf(S);
+const saveS=()=>save(KEYS.S,S),saveL=()=>save(houseKey('ledger'),L),saveD=()=>save(houseKey('data'),D);
+
+const THEMES={
+  ember:{name:'Ember',note:'Follows light or dark mode',light:{bg:'#f5f1ea',panel:'#fffdf9',ink:'#1c1916',muted:'#675f55',line:'#e1d8cb',soft:'#efe8dd',accent:'#a23d1c',accentInk:'#ffffff',warnBg:'#fcefd4',warnInk:'#744604'},dark:{bg:'#131110',panel:'#1c1916',ink:'#f4efe8',muted:'#aaa196',line:'#38322b',soft:'#25211d',accent:'#e57a52',accentInk:'#1a0c06',warnBg:'#3b2a0b',warnInk:'#f5d38a'}},
+  chophouse:{name:'Chophouse',note:'Charcoal and brass',tone:'dark',bg:'#121212',panel:'#1c1b19',ink:'#f2ece1',muted:'#a39b8c',line:'#34312c',soft:'#24221f',accent:'#c9a24d',accentInk:'#1a1406',warnBg:'#3a2d10',warnInk:'#f3d27e'},
+  cabernet:{name:'Cabernet',note:'Blush and wine',tone:'light',bg:'#f6efee',panel:'#fffafa',ink:'#2a1418',muted:'#73585c',line:'#e6d3d4',soft:'#f0e2e3',accent:'#6e1e2e',accentInk:'#ffffff',warnBg:'#fcefd4',warnInk:'#744604'},
+  sage:{name:'Sage',note:'Soft green and forest',tone:'light',bg:'#eef1ec',panel:'#fbfcfa',ink:'#1a221c',muted:'#5c6a60',line:'#d5ddd5',soft:'#e2e8e1',accent:'#2f5d46',accentInk:'#ffffff',warnBg:'#fbefd3',warnInk:'#714503'},
+  midnight:{name:'Midnight',note:'Navy and champagne',tone:'dark',bg:'#0f1420',panel:'#171e2d',ink:'#eef1f7',muted:'#9aa5bb',line:'#2a3347',soft:'#1e2638',accent:'#e3c98f',accentInk:'#1a1406',warnBg:'#3a2f12',warnInk:'#f3d68c'},
+  slate:{name:'Slate',note:'Cool gray and ink blue',tone:'light',bg:'#f1f3f6',panel:'#ffffff',ink:'#16202c',muted:'#5b6778',line:'#d9dfe7',soft:'#e7ebf0',accent:'#1f4e8c',accentInk:'#ffffff',warnBg:'#fcefd4',warnInk:'#744604'},
+  paper:{name:'Paper',note:'Black and white, max contrast',tone:'light',bg:'#ffffff',panel:'#ffffff',ink:'#000000',muted:'#3d3d3d',line:'#bdbdbd',soft:'#f0f0f0',accent:'#000000',accentInk:'#ffffff',warnBg:'#fff1c2',warnInk:'#5a3a00'},
+  bourbon:{name:'Bourbon',note:'Oak and amber',tone:'dark',bg:'#17110c',panel:'#211812',ink:'#f5ebe0',muted:'#b3a08c',line:'#3a2b20',soft:'#2a1f17',accent:'#d98a3a',accentInk:'#1a0f05',warnBg:'#3d2a0e',warnInk:'#f5cf86'},
+  copper:{name:'Copper',note:'Gunmetal and copper',tone:'dark',bg:'#141516',panel:'#1d1f21',ink:'#eef0f1',muted:'#9da3a8',line:'#313539',soft:'#25282b',accent:'#c8753f',accentInk:'#1a0c04',warnBg:'#3d2a0e',warnInk:'#f5cf86'},
+  emerald:{name:'Emerald',note:'Deep green and gold',tone:'dark',bg:'#0d1a15',panel:'#13241d',ink:'#ecf3ef',muted:'#93aa9e',line:'#24392f',soft:'#1a2e25',accent:'#d4b36a',accentInk:'#1a1406',warnBg:'#3a2f12',warnInk:'#f3d68c'},
+  harbor:{name:'Harbor',note:'Sea glass and deep teal',tone:'light',bg:'#eef3f3',panel:'#fbfdfd',ink:'#10262a',muted:'#4f666a',line:'#d2e0e1',soft:'#e1ebec',accent:'#0f5c63',accentInk:'#ffffff',warnBg:'#fcefd4',warnInk:'#744604'},
+  rose:{name:'Rose',note:'Blush and rose gold',tone:'light',bg:'#f8eff0',panel:'#fffbfb',ink:'#2b1a1d',muted:'#7a5f63',line:'#ecd8db',soft:'#f2e3e5',accent:'#a84d61',accentInk:'#ffffff',warnBg:'#fcefd4',warnInk:'#744604'},
+  espresso:{name:'Espresso',note:'Latte and dark roast',tone:'light',bg:'#f2ebe3',panel:'#fcf8f3',ink:'#2a1d14',muted:'#6e5c4d',line:'#e1d4c5',soft:'#ebe1d5',accent:'#5a3a22',accentInk:'#ffffff',warnBg:'#fcefd4',warnInk:'#744604'}
+};
+const QUOTES=`Well done is better than well said. | Benjamin Franklin
+Waste no more time arguing about what a good man should be. Be one. | Marcus Aurelius
+What stands in the way becomes the way. | Marcus Aurelius
+Do every act of your life as though it were the very last act of your life. | Marcus Aurelius
+First say to yourself what you would be; and then do what you have to do. | Epictetus
+No man is free who is not master of himself. | Epictetus
+Make the best use of what is in your power, and take the rest as it happens. | Epictetus
+We suffer more often in imagination than in reality. | Seneca
+It is not that we have a short time to live, but that we waste a lot of it. | Seneca
+Do what you can, with what you have, where you are. | Theodore Roosevelt
+Nothing great was ever achieved without enthusiasm. | Ralph Waldo Emerson
+Every man I meet is in some way my superior, and in that I learn of him. | Ralph Waldo Emerson
+Knowing is not enough; we must apply. Willing is not enough; we must do. | Johann Wolfgang von Goethe
+A journey of a thousand miles begins with a single step. | Lao Tzu
+He who has a why to live can bear almost any how. | Friedrich Nietzsche
+The best way out is always through. | Robert Frost
+Well begun is half done. | Aristotle
+We are what we repeatedly do. Excellence, then, is not an act, but a habit. | Will Durant, on Aristotle
+Character is destiny. | Heraclitus
+Be not afraid of growing slowly; be afraid only of standing still. | Chinese proverb`;
+const darkMQ=window.matchMedia?matchMedia('(prefers-color-scheme: dark)'):null;
+function palette(id){const t=THEMES[id]||THEMES.ember;if(!t.light)return {p:t,dark:t.tone==='dark'};const dark=!!(darkMQ&&darkMQ.matches);return {p:dark?t.dark:t.light,dark}}
+function applyTheme(){
+  const {p,dark}=palette(S.theme),R=document.documentElement;R.dataset.tone=dark?'dark':'light';
+  const v={bg:p.bg,panel:p.panel,ink:p.ink,muted:p.muted,line:p.line,soft:p.soft,ember:p.accent,'ember-ink':p.accentInk,'warn-bg':p.warnBg,'warn-ink':p.warnInk};
+  for(const k in v)R.style.setProperty('--'+k,v[k]);
+  const m=document.querySelector('meta[name="theme-color"]');if(m)m.content=p.bg;
+}
+if(darkMQ&&darkMQ.addEventListener)darkMQ.addEventListener('change',applyTheme);
+const themePicker=()=>`<div class="themes">${Object.entries(THEMES).map(([id,t])=>{const {p}=palette(id);return `<button class="theme${S.theme===id?' on':''}" data-theme="${id}" aria-pressed="${S.theme===id}"><span class="sw"><i style="background:${p.bg}"></i><i style="background:${p.panel}"></i><i style="background:${p.accent}"></i><i style="background:${p.ink}"></i></span><span>${t.name}</span><span class="fine" style="margin:0">${t.note}</span></button>`}).join('')}</div>`;
+
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const placeName=()=>[S.venue,S.house].filter(Boolean).join(' › ');
+const fullName=r=>`${r.first} ${r.last}`.trim()||r.email;
+const fmtShort=d=>d?new Date(d+'T12:00:00').toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'}):'No date';
+const fmtLong=d=>d?new Date(d+'T12:00:00').toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'}):'No date';
+const ago=d=>{const n=daysBetween(d,todayISO());return n<=0?'today':n===1?'yesterday':`${n} days ago`};
+const catById=id=>book().categories.find(c=>c.id===id);
+
+/* ---------- toast ---------- */
+let toastT;
+function toast(msg,actionLabel,action){
+  const t=$('#toast');t.innerHTML=`<span>${esc(msg)}</span>${actionLabel?`<button type="button">${esc(actionLabel)}</button>`:''}`;t.hidden=false;
+  if(actionLabel)t.querySelector('button').onclick=()=>{t.hidden=true;action()};
+  clearTimeout(toastT);toastT=setTimeout(()=>t.hidden=true,actionLabel?6000:3000);
+}
+
+/* ---------- files ---------- */
+let xlsxLib=null;
+function loadXLSX(){
+  if(window.XLSX)return Promise.resolve(window.XLSX);
+  return xlsxLib||(xlsxLib=new Promise((ok,no)=>{const s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';s.onload=()=>ok(window.XLSX);s.onerror=()=>{xlsxLib=null;no(new Error('xlsx'))};document.head.appendChild(s)}));
+}
+async function readTable(f){
+  if(/\.xlsx?$/i.test(f.name)){
+    const X=await loadXLSX(),wb=X.read(await f.arrayBuffer(),{type:'array'}),ws=wb.Sheets[wb.SheetNames[0]];
+    return X.utils.sheet_to_json(ws,{header:1,raw:false,defval:''}).map(r=>r.map(v=>String(v??'')));
+  }
+  return parseCSV(await f.text());
+}
+async function handleFiles(list){
+  const files=[...list];if(!files.length)return;
+  const js=files.find(f=>/\.json$/i.test(f.name));if(js)return restoreText(await js.text());
+  pending=[];
+  for(const f of files){
+    let t;try{t=await readTable(f)}catch(e){toast(/xlsx/.test(e.message)?'Could not open the Excel file. Export as CSV instead.':`Could not read ${f.name}`);continue}
+    if(!t||t.length<2){toast(`${f.name} looks empty`);continue}
+    const headers=t[0].map(h=>String(h).trim()),saved=load(KEYS.M,{})[headers.join('|')];
+    pending.push({name:f.name,headers,body:t.slice(1),map:saved||detect(headers)});
+  }
+  if(!pending.length)return;
+  lastRaw=clone(pending);
+  if(mapProblem())showMapping();else ingest();
+}
+function mapProblem(){
+  if(!pending.some(p=>p.map.date!=null))return 'No visit date column found. Pick it below.';
+  if(!pending.some(p=>p.map.date!=null&&(p.map.first!=null||p.map.full!=null)))return 'No guest name column found in the reservation file.';
+  return '';
+}
+function ingest(){
+  const maps=load(KEYS.M,{});for(const p of pending)maps[p.headers.join('|')]=p.map;save(KEYS.M,maps);
+  const rows=merge(pending.map(p=>({type:p.map.date!=null?'res':'guest',rows:toRows(p.body,p.map)})));
+  if(!rows.length){toast('No reservations found in that file');return}
+  D={rows,loadedAt:new Date().toISOString(),files:pending.map(p=>p.name)};
+  recordVisits(rows,L,todayISO());saveD();saveL();pending=[];
+  renderAll();
+  const noEmail=rows.filter(r=>!r.email).length;
+  toast(`${rows.length} reservations loaded${noEmail?`. ${noEmail} ${noEmail===1?'has':'have'} no email`:''}`);
+}
+
+/* ---------- mapping ---------- */
+const sampleVal=(p,i)=>{if(i==null)return '';const r=p.body.find(r=>String(r[i]||'').trim());return r?String(r[i]).slice(0,48):''};
+function showMapping(){
+  $('#mapping').innerHTML=`<div class="mapbox"><h2>Help Me Read This File</h2>
+  <p class="fine">SevenRooms names its columns its own way, so the ledger needs to know which column holds what. Each row below is one piece of guest info. Pick the column from your file that holds it. The gray text shows what that column contains, so you can check it.</p>
+  <p class="fine">Only a visit date and a guest name are needed. Everything else makes sorting and drafts smarter. You only do this once. It is remembered for next week's file.</p>
+  ${pending.map((p,pi)=>`<div class="mapfile"><h3>${esc(p.name)}</h3><table>${FIELDS.map(([k,label])=>`<tr><td>${label}${k==='date'?' <span class="flag warn">Needed</span>':k==='first'||k==='full'?' <span class="flag warn">Name needed</span>':''}</td><td><select data-pi="${pi}" data-k="${k}"><option value="">Not in this file</option>${p.headers.map((h,i)=>`<option value="${i}"${p.map[k]===i?' selected':''}>${esc(h||`Column ${i+1}`)}</option>`).join('')}</select></td><td class="samp" id="s-${pi}-${k}">${esc(sampleVal(p,p.map[k]))}</td></tr>`).join('')}</table></div>`).join('')}
+  <div class="err" id="mapErr">${esc(mapProblem())}</div>
+  <div class="row" style="justify-content:flex-start"><button class="primary" data-act="applymap">Continue</button><button data-act="cancelmap">Cancel</button></div></div>`;
+  show('mapping');
+}
+$('#mapping').addEventListener('change',e=>{
+  const s=e.target.closest('select');if(!s)return;const p=pending[+s.dataset.pi],k=s.dataset.k;
+  if(s.value==='')delete p.map[k];else p.map[k]=+s.value;
+  $(`#s-${s.dataset.pi}-${k}`).textContent=sampleVal(p,p.map[k]);$('#mapErr').textContent=mapProblem();
+});
+$('#mapping').addEventListener('click',e=>{
+  const a=e.target.closest('[data-act]');if(!a)return;
+  if(a.dataset.act==='applymap'){const m=mapProblem();if(m){$('#mapErr').textContent=m;return}ingest()}
+  if(a.dataset.act==='cancelmap'){pending=[];renderAll()}
+});
+
+/* ---------- board ---------- */
+function show(which){for(const id of ['empty','mapping','board'])$('#'+id).hidden=id!==which}
+function sortItems(a){
+  const b=a.filter(x=>x.timing==='before').sort((x,y)=>(x.r.date+tsort(x.r.time)).localeCompare(y.r.date+tsort(y.r.time)));
+  const f=a.filter(x=>x.timing==='after').sort((x,y)=>(y.r.date+tsort(y.r.time)).localeCompare(x.r.date+tsort(x.r.time)));
+  return b.concat(f);
+}
+function boardOrder(){return book().categories.flatMap(c=>sortItems(Q.filter(x=>x.cat===c.id&&!x.handled&&!x.cooling&&!x.later))).map(x=>x.hid)}
+function cardHTML(x){
+  const r=x.r,diet=isDietary(r,S),tg=tagsByGroup(r),chips=id=>(tg[id]||[]).map(t=>`<span class="flag g-${TAG_GROUPS.find(g=>g.id===id).color}">${esc(t)}</span>`).join('');
+  return `<button class="card${x.cooling||x.later?' cool':''}" data-id="${esc(x.hid)}">
+  <div class="ct"><span class="nm">${esc(fullName(r))}</span><span class="tm ${x.timing}">${x.timing==='before'?'Before Visit':'Thank You'}</span></div>
+  <div class="meta">${esc([fmtShort(r.date),r.time,r.party?`${r.party} guests`:''].filter(Boolean).join(' · '))}</div>
+  <div class="flags">${chips('vip')}${chips('attention')}${diet?'<span class="flag g-red">Dietary</span>':''}${!r.email?'<span class="flag warn">No email</span>':''}${optedIn(r)?'<span class="flag">Opted in</span>':''}${r.visits!=null?`<span class="flag">${r.visits} visit${r.visits===1?'':'s'}</span>`:''}${x.later?`<span class="flag">Goes out ${fmtShort(x.due)}</span>`:''}${x.lastSent?`<span class="flag">Emailed ${ago(x.lastSent)}</span>`:''}</div></button>`;
+}
+function renderBoard(){
+  const today=todayISO();Q=buildQueue(D.rows,S,L,today);
+  const live=Q.filter(x=>!x.handled&&!x.cooling&&!x.later),tot=live.length+Q.filter(x=>x.handled).length,done=tot-live.length,pct=tot?Math.round(done/tot*100):0;
+  $('#run').innerHTML=`<div class="prog" role="progressbar" aria-label="Queue progress" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100"><i style="width:${pct}%"></i></div><span class="pl">${live.length?`${done} of ${tot} due today done`:tot?'Queue clear. Every note due today is handled.':'Nothing due today'}${Q.some(x=>x.later&&!x.cooling)?` · ${Q.filter(x=>x.later&&!x.cooling).length} coming up`:''}</span>${live.length?`<button class="primary" id="btnStart">${done?'Continue Queue':'Start Queue'}</button>`:''}`;
+  $('#score').innerHTML=[['In the queue',live.length],['Time to clear it',`${live.length?Math.max(1,Math.round(live.length*0.75)):0} min`],['Notes sent this week',sentWithin(L,7,today)],['Came back after a note',cameBack(L)]]
+    .map(([l,v])=>`<div class="metric"><div class="ml">${l}</div><div class="mv">${v}</div></div>`).join('');
+  $('#cols').innerHTML=book().categories.map(c=>{
+    const items=Q.filter(x=>x.cat===c.id),lv=sortItems(items.filter(x=>!x.handled&&!x.cooling&&!x.later)),cool=sortItems(items.filter(x=>x.cooling)),soon=items.filter(x=>x.later&&!x.cooling).sort((a,b)=>a.due.localeCompare(b.due)),done=items.filter(x=>x.handled);
+    return `<section class="col"><header class="col-h"><span class="chip c-${esc(c.color)}">${esc(c.name)}</span><span class="cnt">${lv.length}</span></header>
+    <div class="list">${lv.map(cardHTML).join('')||'<div class="none">Nothing here this week</div>'}${soon.length?`<div class="sublabel">Coming Up</div>${soon.map(cardHTML).join('')}`:''}${cool.length?`<div class="sublabel">Emailed Recently</div>${cool.map(cardHTML).join('')}`:''}</div>
+    ${done.length?`<div class="done">${done.length} done</div>`:''}</section>`;
+  }).join('');
+}
+function renderAll(){
+  $('#venueTitle').innerHTML=`Guest Ledger<span class="ver">${VERSION}</span>`;
+  {const e=EMBLEMS[slug(S.house)],lg=$('#logo');lg.innerHTML=e?`<i class="mark" style="--m:url('${e}')"></i>`:'GL'}
+  const ds=D.rows.map(r=>r.date).filter(Boolean).sort();
+  $('#weekLabel').textContent=[placeName(),D.rows.length?`${fmtShort(ds[0])} to ${fmtShort(ds[ds.length-1])}`:'',D.rows.length?`${D.rows.length} Reservations`:'No guests loaded yet'].filter(Boolean).join(' · ');
+  $('#houseTabs').innerHTML=S.houses.map(n=>`<a class="htab${n===S.house?' on':''}" href="#${esc(slug(n))}"${n===S.house?' aria-current="page"':''}>${esc(n)}</a>`).join('');
+  $('#emptyHouse').textContent=`For ${placeName()}. Each house keeps its own guest list and history.`;
+  $('#btnCols').hidden=!lastRaw;$('#btnExport').hidden=!D.rows.length;
+  const anySent=Object.values(L.guests).some(g=>g.sent.length);
+  $('#backupDot').hidden=!(anySent&&(!S.lastBackup||daysBetween(S.lastBackup,todayISO())>=14));
+  if(D.rows.length){show('board');renderBoard()}else show('empty');
+  banner();
+}
+function switchHouse(name){
+  if(!name||name===S.house)return;
+  S.house=name;saveS();
+  L=load(houseKey('ledger'),{guests:{},handled:{}});D=load(houseKey('data'),{rows:[],loadedAt:null,files:[]});
+  Q=[];pending=[];lastRaw=null;closePanels();$('#sheetWrap').hidden=true;
+  if(location.hash.slice(1)!==slug(name))location.hash=slug(name);
+  renderAll();
+}
+window.addEventListener('hashchange',()=>{const h=fromHash();if(h)switchHouse(h)});
+$('#cols').addEventListener('click',e=>{const c=e.target.closest('.card');if(c)openGuest(c.dataset.id)});
+$('#run').addEventListener('click',e=>{if(e.target.id==='btnStart'){const f=boardOrder()[0];if(f)openGuest(f)}});
+
+/* ---------- guest drawer ---------- */
+function openPanel(el){$('#scrim').hidden=false;el.hidden=false;el.scrollTop=0}
+function closePanels(){$('#scrim').hidden=true;$('#drawer').hidden=true;$('#settings').hidden=true;$('#worth').hidden=true;cur=null}
+const PROVIDERS={
+  mailto:{name:'Default mail app on this device (Apple Mail, Outlook app, Spark)',label:'Open Email',url:(t,su,b)=>`mailto:${t}?subject=${enc(su)}&body=${enc(b)}`},
+  gmail:{name:'Gmail',label:'Open in Gmail',tab:true,url:(t,su,b)=>`https://mail.google.com/mail/?view=cm&fs=1${S.fromEmail?`&authuser=${enc(S.fromEmail)}`:''}&to=${enc(t)}&su=${enc(su)}&body=${enc(b)}`},
+  o365:{name:'Outlook, work or school account',label:'Open in Outlook',tab:true,url:(t,su,b)=>`https://outlook.office.com/mail/deeplink/compose?to=${enc(t)}&subject=${enc(su)}&body=${enc(b)}`},
+  outlookcom:{name:'Outlook.com, personal account',label:'Open in Outlook',tab:true,url:(t,su,b)=>`https://outlook.live.com/mail/0/deeplink/compose?to=${enc(t)}&subject=${enc(su)}&body=${enc(b)}`},
+  yahoo:{name:'Yahoo Mail',label:'Open in Yahoo Mail',tab:true,url:(t,su,b)=>`https://compose.mail.yahoo.com/?to=${enc(t)}&subject=${enc(su)}&body=${enc(b)}`},
+  // shortcut: AOL and Zoho compose links only fill the address reliably, so the message is copied for a paste
+  aol:{name:'AOL Mail (copies the message for you to paste)',label:'Open in AOL Mail',tab:true,copy:true,url:t=>`https://mail.aol.com/d/compose/?to=${enc(t)}`},
+  zoho:{name:'Zoho Mail (copies the message for you to paste)',label:'Open in Zoho Mail',tab:true,copy:true,url:t=>`https://mail.zoho.com/mail/compose.do?extsrc=mailto&mode=compose&tp=zb&ct=${enc('mailto:'+t)}`},
+  other:{name:'Any other email (copy and paste)',label:'Copy Email',copyOnly:true,url:()=>'#'}
+};
+const enc=encodeURIComponent;
+const provider=()=>PROVIDERS[S.sendVia]||PROVIDERS.mailto;
+function composeURL(to,subj,body){return provider().url(to,subj,body)}
+function queueStats(){const live=Q.filter(q=>!q.handled&&!q.cooling&&!q.later),tot=live.length+Q.filter(q=>q.handled).length;return {live,tot,done:tot-live.length}}
+function dotsHTML(done,tot){return tot&&tot<=30?`<div class="dots" aria-hidden="true">${Array.from({length:tot},(_,i)=>`<i class="${i<done?'on':i===done?'cur':''}"></i>`).join('')}</div>`:'<div class="dots"></div>'}
+function openGuest(hid,catId){
+  const x=Q.find(q=>q.hid===hid);if(!x)return;
+  const c=catById(catId||x.cat),tpl=c&&c[x.timing],r=x.r,hay=hayOf(r),g=L.guests[x.key];
+  cur={x,cat:c?c.id:x.cat};
+  const tg=tagsByGroup(r);
+  const oi=optedIn(r),{tot,done}=queueStats(),pos=x.handled?done:Math.min(done+1,tot);
+  const o=occasionOf(hay),occ=c&&c.id==='celebrate'&&o!=='something special'?o.replace(/^(your|a|an) /,'').replace(/^./,ch=>ch.toUpperCase()):'';
+  const sub=[occ,fmtLong(r.date)+(r.time?' at '+r.time:''),r.party?`party of ${r.party}`:''].filter(Boolean).join(' · ');
+  const d=$('#drawer');
+  d.innerHTML=`<div class="fv-top"><button data-act="close">Back to Board</button>${dotsHTML(done,tot)}<span class="pl">${pos} of ${tot}</span></div>
+  <div class="fv enter">
+    <div class="eyebrow"><span class="chip c-${esc(c?c.color:'gray')}">${esc(c?c.name:'')}</span><span>${x.timing==='before'?'Before their visit':'Thank you after their visit'}</span></div>
+    <h1 class="fv-name">${esc(fullName(r))}</h1>
+    <div class="fv-sub">${esc(sub)}</div>
+    <div class="flags">${r.visits!=null?`<span class="flag">${r.visits} visit${r.visits===1?'':'s'}</span>`:''}<span class="flag">Last note: ${g&&g.sent.length?esc(ago(g.sent[g.sent.length-1].atDay)):'never'}</span><span class="flag${oi===false?' warn':''}">Marketing opt-in: ${oi===true?'yes':oi===false?'no':'not in file'}</span></div>
+    ${isDietary(r,S)?'<div class="alert">Dietary note on file. Brief the kitchen. Mention it only if the guest raised it themselves.</div>':''}
+    ${(Object.keys(tg).length||r.resNotes||r.clientNotes)?`<details class="know" open><summary>What We Know, Internal Only</summary>
+      ${tg.res?`<div class="tg"><span class="tgl">This Reservation</span><span class="tgc">${tg.res.map(t=>`<span class="flag g-plum">${esc(t)}</span>`).join('')}</span></div>`:''}
+      ${TAG_GROUPS.filter(g=>!g.auto&&tg[g.id]).map(g=>`<div class="tg"><span class="tgl">${esc(g.name)}</span><span class="tgc">${tg[g.id].map(t=>`<span class="flag g-${g.color}">${esc(t)}</span>`).join('')}</span></div>`).join('')}
+      ${tg.other?`<div class="tg"><span class="tgl">Other Tags</span><span class="tgc">${tg.other.map(t=>`<span class="flag">${esc(t)}</span>`).join('')}</span></div>`:''}
+      ${tg.auto?`<div class="tg"><span class="tgl">SevenRooms Auto-Tags</span><span class="tgc">${tg.auto.map(t=>`<span class="flag g-teal">${esc(t)}</span>`).join('')}</span></div>`:''}
+      ${r.resNotes?`<div class="note"><span class="fine">Reservation: </span>${esc(r.resNotes)}</div>`:''}
+      ${r.clientNotes?`<div class="note"><span class="fine">Guest profile: </span>${esc(r.clientNotes)}</div>`:''}</details>`:''}
+    <div class="composer">
+      <label class="fl">To<input id="gTo" type="email" autocomplete="off" value="${esc(r.email)}" placeholder="guest@email.com"></label>
+      <p class="fine" id="gAddr"></p>
+      <label class="fl">Subject<input id="gSubj" value="${esc(tpl?fill(tpl.subject,r,S):'')}"></label>
+      <label class="fl">Message<textarea id="gBody" rows="11">${esc(tpl?fill(tpl.body,r,S):'')}</textarea></label>
+      <div class="lines"><select id="gLine" aria-label="Insert one of your lines"><option value="">Insert one of your lines</option>${S.lines.map((l,i)=>`<option value="${i}">${esc(l.length>70?l.slice(0,70)+'...':l)}</option>`).join('')}</select><button data-act="saveline">Save highlighted text</button></div>
+      <label class="fl">Category<select id="gCat">${book().categories.map(k=>`<option value="${esc(k.id)}"${k.id===cur.cat?' selected':''}>${esc(k.name)}</option>`).join('')}</select></label>
+      <p class="fine">${provider().copyOnly?'Copy the email, paste it into your mail, then tap Mark Sent.':`Opens in ${esc(provider().name.replace(/ \(.*\)$/,''))}${S.fromEmail?` as ${esc(S.fromEmail)}`:', in whatever account you are signed into'}. That marks the guest sent and brings up the next one. You can undo.`} On a keyboard, Command + Enter does the same.</p>
+    </div>
+  </div>
+  <div class="fv-bar"><button data-act="later">Later</button><button data-act="skip">Skip</button><button data-act="copy">Copy</button><button data-act="sent">Mark Sent</button><a id="gOpen" class="btn primary"${provider().tab?' target="_blank" rel="noopener"':''}>${esc(provider().label)}</a></div>`;
+  updateHref();openPanel(d);d.scrollTop=0;
+}
+function showDone(){
+  cur=null;const {tot}=queueStats(),d=$('#drawer');
+  d.innerHTML=`<div class="fv-top"><button data-act="close">Back to Board</button>${dotsHTML(tot,tot)}<span class="pl">${tot} of ${tot}</span></div>
+  <div class="fv fv-done enter"><div class="eyebrow" style="justify-content:center">Queue clear</div><h1 class="fv-name">That's everyone.</h1>
+  <p class="fv-sub">${sentWithin(L,7,todayISO())} notes sent this week. ${cameBack(L)} guests have come back after a note.</p>
+  <div class="row"><button class="primary" data-act="close">Back to Board</button><button data-act="sheet">Open the Pre-Shift Sheet</button></div></div>`;
+  openPanel(d);
+}
+function updateHref(){
+  const to=$('#gTo').value.trim(),a=$('#gOpen');
+  a.href=composeURL(to,$('#gSubj').value,$('#gBody').value);
+  $('#gAddr').textContent=to?'':'No email on file. Add one above, or find it in SevenRooms.';
+}
+function nextAfter(hid){const o=boardOrder(),i=o.indexOf(hid);return o.slice(i+1).concat(o.slice(0,Math.max(i,0))).find(h=>h!==hid)||null}
+function act(kind,note){
+  if(!cur)return;const x=cur.x,next=nextAfter(x.hid),snap=JSON.stringify(L),now=new Date().toISOString(),atDay=todayISO();
+  L.handled[x.hid]={action:kind,at:now,cat:cur.cat};
+  if(kind==='sent'){const g=L.guests[x.key]||(L.guests[x.key]={name:fullName(x.r),visits:[],sent:[]});g.sent.push({at:now,atDay,resId:x.id,resDate:x.r.date,timing:x.timing,cat:cur.cat})}
+  saveL();
+  setTimeout(()=>{
+    renderAll();
+    if(next&&Q.some(q=>q.hid===next&&!q.handled&&!q.cooling&&!q.later))openGuest(next);else showDone();
+    toast((note?note+' ':'')+(kind==='sent'?`${fullName(x.r)} marked sent`:`${fullName(x.r)} skipped`),'Undo',()=>{L=JSON.parse(snap);saveL();renderAll();openGuest(x.hid)});
+  },kind==='sent'?400:0);
+}
+async function copyText(text,fallbackEl,quiet){
+  try{await navigator.clipboard.writeText(text);if(!quiet)toast('Copied')}
+  catch(e){if(fallbackEl){fallbackEl.focus();fallbackEl.select();try{document.execCommand('copy');toast('Copied')}catch(_){toast('Select the text and copy it')}}else toast('Copy is blocked here')}
+}
+$('#drawer').addEventListener('input',e=>{if(['gTo','gSubj','gBody'].includes(e.target.id))updateHref()});
+$('#drawer').addEventListener('change',e=>{
+  if(e.target.id==='gCat'){
+    const c=catById(e.target.value),tpl=c&&c[cur.x.timing];
+    if(!tpl){toast(`${c.name} has no ${cur.x.timing==='before'?'before-visit':'thank-you'} template`);return}
+    cur.cat=c.id;$('#gSubj').value=fill(tpl.subject,cur.x.r,S);$('#gBody').value=fill(tpl.body,cur.x.r,S);updateHref();
+  }
+  if(e.target.id==='gLine'&&e.target.value!==''){
+    const ta=$('#gBody'),line=S.lines[+e.target.value];ta.focus();ta.setRangeText(line,ta.selectionStart,ta.selectionEnd,'end');e.target.value='';updateHref();
+  }
+});
+$('#drawer').addEventListener('click',e=>{
+  if(e.target.id==='gOpen'){
+    const pv=provider(),all=`To: ${$('#gTo').value.trim()}\nSubject: ${$('#gSubj').value}\n\n${$('#gBody').value}`;
+    if(pv.copyOnly){e.preventDefault();copyText(all,$('#gBody'));toast('Email copied. Paste it into your mail, then tap Mark Sent.');return}
+    if(!$('#gTo').value.trim()){e.preventDefault();toast('Add an email address first');return}
+    if(pv.copy)copyText(`${$('#gSubj').value}\n\n${$('#gBody').value}`,null,true);
+    act('sent',pv.copy?'Message copied. Paste it into the email.':'');return;
+  }
+  const a=e.target.closest('[data-act]');if(!a)return;
+  const k=a.dataset.act;
+  if(k==='close')closePanels();
+  if(!cur&&k!=='sheet')return;
+  if(k==='sent'||k==='skip')act(k);
+  if(k==='later'||k==='next'){const n=nextAfter(cur.x.hid);if(n)openGuest(n);else toast('That was the last one')}
+  if(k==='sheet'){closePanels();buildSheet(todayISO())}
+  if(k==='copy')copyText(`${$('#gSubj').value}\n\n${$('#gBody').value}`,$('#gBody'));
+  if(k==='saveline'){
+    const ta=$('#gBody'),t=ta.value.slice(ta.selectionStart,ta.selectionEnd).trim();
+    if(!t){toast('Highlight a sentence in the message first');return}
+    if(!S.lines.includes(t)){S.lines.push(t);saveS()}
+    const sel=$('#gLine');sel.insertAdjacentHTML('beforeend',`<option value="${S.lines.length-1}">${esc(t.length>70?t.slice(0,70)+'...':t)}</option>`);toast('Line saved');
+  }
+});
+
+/* ---------- settings ---------- */
+const COLORS=['red','pink','teal','purple','amber','blue','gray'];
+const tplVal=t=>t||{subject:'',body:''};
+function catEditorHTML(){
+  return catsDraft.map((c,i)=>`<div class="cated" data-i="${i}">
+  <div class="cathead"><input data-f="name" value="${esc(c.name)}" aria-label="Category name"><select data-f="color" aria-label="Color">${COLORS.map(k=>`<option${k===c.color?' selected':''}>${k}</option>`).join('')}</select><button data-act="catup" ${i===0?'hidden':''}>Move up</button><button data-act="catdel">Remove</button></div>
+  ${c.id==='everyone'?'<p class="fine">Catches every guest not matched above. Remove it to ignore unmatched guests.</p>':`<label class="fl">Match these words in tags or notes, separated by commas<textarea data-f="keywords" rows="2">${esc(c.keywords)}</textarea></label>${c.id==='first'?'<p class="fine">Also matches guests with 1 total visit.</p>':''}${c.id==='regular'?'<p class="fine">Also matches guests at or above the regular visit count.</p>':''}`}
+  <details><summary>Before the visit email${c.before&&c.before.body?'':' (off)'}</summary><label class="fl">Subject<input data-f="bs" value="${esc(tplVal(c.before).subject)}" placeholder="Leave empty to skip before-visit notes"></label><label class="fl">Message<textarea data-f="bb" rows="8">${esc(tplVal(c.before).body)}</textarea></label></details>
+  <details><summary>Thank you email${c.after&&c.after.body?'':' (off)'}</summary><label class="fl">Subject<input data-f="as" value="${esc(tplVal(c.after).subject)}"></label><label class="fl">Message<textarea data-f="ab" rows="8">${esc(tplVal(c.after).body)}</textarea></label></details>
+  </div>`).join('');
+}
+function readCats(){
+  return [...document.querySelectorAll('#catEd .cated')].map(el=>{
+    const c=catsDraft[+el.dataset.i],v=f=>{const n=el.querySelector(`[data-f="${f}"]`);return n?n.value:''};
+    const t=(s,b)=>b.trim()?{subject:s.trim(),body:b}:null;
+    return Object.assign({},c,{name:v('name').trim()||c.name,color:v('color'),keywords:c.id==='everyone'?'':v('keywords'),before:t(v('bs'),v('bb')),after:t(v('as'),v('ab'))});
+  });
+}
+function slug(t){return String(t||'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')}
+function downloadFile(name,text,type){
+  try{const u=URL.createObjectURL(new Blob([text],{type})),l=document.createElement('a');l.href=u;l.download=name;document.body.appendChild(l);l.click();l.remove();setTimeout(()=>URL.revokeObjectURL(u),2000);return true}catch(_){return false}
+}
+// spreadsheet apps run cells starting with = + - @ as formulas, so those get a leading apostrophe
+const csvCell=v=>{let t=String(v??'');if(/^[=+\-@]/.test(t))t="'"+t;return /[",\n]/.test(t)?`"${t.replace(/"/g,'""')}"`:t};
+function exportCSV(){
+  const today=todayISO(),byId={};for(const x of buildQueue(D.rows,S,L,today))byId[x.id]=x;
+  const head=['Date','Time','First name','Last name','Email','Party','Category','Note','Send on','Status','Status date','Total visits','Marketing opt-in','Dietary flag','Tags'];
+  const rows=D.rows.slice().sort((a,b)=>(a.date+tsort(a.time)).localeCompare(b.date+tsort(b.time))).map(r=>{
+    const x=byId[resId(r)],c=x&&catById(x.cat),h=x&&x.handled,oi=optedIn(r);
+    const status=isExcluded(r)?'Cancelled or no-show':hasGroup(r,'blacklist')?'Blacklist, no email':!x?'No note this week':h?(h.action==='sent'?'Sent':'Skipped'):x.cooling?'Emailed recently':x.later?'Scheduled':'Due';
+    return [r.date,r.time,r.first,r.last,r.email,r.party,c?c.name:'',x?(x.timing==='before'?'Before visit':'Thank you'):'',x?x.due:'',status,h?h.at.slice(0,10):'',r.visits??'',oi===true?'Yes':oi===false?'No':'',isDietary(r,S)?'Yes':'',[r.resTags,r.clientTags].filter(Boolean).join('; ').replace(/\n/g,' ')];
+  });
+  return [head,...rows].map(r=>r.map(csvCell).join(',')).join('\n');
+}
+function remindersICS(){
+  const url=/^https?:/.test(location.href)?location.href.split('#')[0]:'',stamp=new Date().toISOString().replace(/[-:]|\.\d+/g,''),d0=todayISO().replace(/-/g,'');
+  const ev=(id,title,days,time,desc)=>['BEGIN:VEVENT',`UID:guest-ledger-${id}-${d0}@guest-ledger`,`DTSTAMP:${stamp}`,`DTSTART:${d0}T${time}00`,'DURATION:PT15M',`RRULE:FREQ=WEEKLY;BYDAY=${days}`,`SUMMARY:${title}`,`DESCRIPTION:${desc}${url?'\\n'+url:''}`,'BEGIN:VALARM','TRIGGER:PT0M','ACTION:DISPLAY',`DESCRIPTION:${title}`,'END:VALARM','END:VEVENT'].join('\r\n');
+  return ['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Guest Ledger//EN','CALSCALE:GREGORIAN',
+    ev('load','Guest Ledger: Load This Week\'s Export',S.remLoadDay||'MO',(S.remLoadTime||'09:30').replace(':',''),'Export reservations from SevenRooms and tap Load Week for each house.'),
+    ev('queue','Guest Ledger: Send Notes Due Today',S.remQueueDays||'MO,TU,WE,TH,FR',(S.remQueueTime||'10:00').replace(':',''),'Open the ledger and tap Start Queue.'),
+    ev('sheet','Guest Ledger: Print the Pre-Shift Sheet',S.remSheetDays||'TH,FR,SA,SU',(S.remSheetTime||'15:00').replace(':',''),'Open the ledger, tap Pre-Shift Sheet, then Print.'),
+    'END:VCALENDAR'].join('\r\n');
+}
+function backupJSON(){const ledgers={};for(const h of S.houses){const k=slug(h);ledgers[k]=h===S.house?L:load(`gl.ledger.v1.${k}`,null)}return JSON.stringify({app:'guest-ledger',version:2,exportedAt:new Date().toISOString(),settings:S,ledgers},null,1)}
+let settingsTab='general';
+const STABS=[['general','General'],['timing','Timing and Scheduling'],['categories','Categories'],['tags','Tags'],['writing','Writing'],['data','Data and Backup'],['appearance','Appearance']];
+function openSettings(focus){
+  catsDraft=clone(book().categories);
+  if(focus==='backup')settingsTab='data';
+  const el=$('#settings'),sec=(id,html)=>`<section class="stab${settingsTab===id?' on':''}" data-tab="${id}">${html}</section>`;
+  const dayOpts=(name,val)=>`<select name="${name}">${[['MO','Monday'],['TU','Tuesday'],['WE','Wednesday'],['TH','Thursday'],['FR','Friday'],['SA','Saturday'],['SU','Sunday']].map(([k,n])=>`<option value="${k}"${val===k?' selected':''}>${n}</option>`).join('')}</select>`;
+  el.innerHTML=`<div class="dh"><div><div class="dn">Settings</div><div class="ds">Guest Ledger ${VERSION}. If this is not the version you expect, reload the page.</div></div><button data-act="close">Close</button></div>
+  <nav class="stabs" role="tablist">${STABS.map(([id,n])=>`<button role="tab" data-stab="${id}" aria-selected="${settingsTab===id}" class="${settingsTab===id?'on':''}">${n}</button>`).join('')}</nav>
+  ${sec('general',`<h3>Signature</h3><div class="grid2">
+  <label class="fl">Your name<input name="sender" value="${esc(S.sender)}"></label>
+  <label class="fl">Title<input name="title" value="${esc(S.title)}"></label>
+  <label class="fl">Restaurant group<input name="venue" value="${esc(S.venue)}"></label></div>
+  <h3>Houses</h3><label class="fl">One per line. Each gets its own page, guest list and history.<textarea name="houses" rows="4">${esc(S.houses.join('\n'))}</textarea></label>
+  <p class="fine">Use {venue} for the group and {house} for the house in any template.</p>
+  <h3>Sending</h3>
+  <label class="fl">Send from<select name="sendVia">${Object.entries(PROVIDERS).map(([k,pv])=>`<option value="${k}"${S.sendVia===k?' selected':''}>${esc(pv.name)}</option>`).join('')}</select></label>
+  <label class="fl">Your email (optional)<input name="fromEmail" type="email" autocomplete="email" value="${esc(S.fromEmail)}" placeholder="you@example.com"></label>
+  <p class="fine">Nothing is sent from here and no password is needed. The draft opens in the mail you are already signed into. For Gmail, your email picks the right account if you are signed into more than one.</p>`)}
+  ${sec('timing',`<h3>When Notes Go Out at ${esc(S.house)}</h3><p class="fine">Each house keeps its own timing. Every note gets a send date. Notes that are due show in the queue. The rest wait under Coming Up and move into the queue on their day.</p><div class="grid2">
+  <label class="fl">Thank-you notes, days after the visit<input name="afterDays" type="number" min="0" max="14" value="${book().afterDays}"></label>
+  <label class="fl">Before-visit notes, days before the visit<input name="beforeDays" type="number" min="0" max="30" value="${book().beforeDays}"></label></div>
+  <p class="fine">To work the whole week in one sitting, set before-visit notes to 7.</p>
+  <h3>Calendar Reminders</h3><p class="fine">Adds three repeating reminders to the calendar on this device, so the weekly rhythm runs without remembering it.</p><div class="grid2">
+  <label class="fl">Load the export on${dayOpts('remLoadDay',S.remLoadDay||'MO')}</label><label class="fl">At<input name="remLoadTime" type="time" value="${S.remLoadTime||'09:30'}"></label>
+  <label class="fl">Send notes due today, weekdays at<input name="remQueueTime" type="time" value="${S.remQueueTime||'10:00'}"></label>
+  <label class="fl">Print the pre-shift sheet, Thursday to Sunday at<input name="remSheetTime" type="time" value="${S.remSheetTime||'15:00'}"></label></div>
+  <button data-act="ics">Add Reminders to Calendar</button>
+  <p class="fine">A single email can also be timed in Gmail, Outlook and Apple Mail with their own Schedule Send.</p>
+  <h3>Which Guests</h3><div class="grid2">
+  <label class="fl">Thank-yous for visits in the last (days)<input name="lookbackDays" type="number" min="1" max="60" value="${S.lookbackDays}"></label>
+  <label class="fl">Before-visit notes for the next (days), ${esc(S.house)} only<input name="lookaheadDays" type="number" min="1" max="120" value="${book().lookaheadDays}"></label>
+  <label class="fl">Wait before emailing a guest again (days)<input name="cooldownDays" type="number" min="0" max="365" value="${S.cooldownDays}"></label>
+  <label class="fl">Visits that make a regular<input name="regularVisits" type="number" min="2" max="100" value="${S.regularVisits}"></label></div>`)}
+  ${sec('categories',`<h3>Categories for ${esc(S.house)}</h3><p class="fine">Each house has its own categories and wording. Switch houses to edit another one. Top to bottom is priority. A guest lands in the first category that matches. Fill-ins: {first} {last} {day} {date} {party} {occasion} {sender} {title} {venue} {house}</p>
+  <div id="catEd">${catEditorHTML()}</div><div class="row" style="justify-content:flex-start"><button data-act="addcat">Add Category</button>${BOOKS[slug(S.house)]?`<button data-act="resetbook">Reset to the ${esc(S.house)} Playbook</button>`:''}</div>`)}
+  ${sec('tags',`<h3>Tag Guide</h3><p class="fine">Every SevenRooms tag, grouped and colored the way SevenRooms shows them, with what the ledger does with each group. Tap a group to see its tags.</p>
+  ${TAG_GROUPS.map(g=>`<details class="cated"><summary><span class="flag g-${g.color}">${esc(g.name)}</span> <span class="fine">${g.tags.split('|').length} ${g.tags.split('|').length===1?'tag':'tags'}</span></summary><p class="fine">${esc(g.does)}</p><div class="tgc">${g.tags.split('|').map(t=>`<span class="flag g-${g.color}">${esc(t)}</span>`).join('')}</div></details>`).join('')}
+  <h3>Dietary Flags</h3><p class="fine">Every tag in Dietary Restrictions already flags. Add words here to also catch them in notes.</p><label class="fl">Words that flag a dietary note, separated by commas<textarea name="dietaryKeywords" rows="2">${esc(S.dietaryKeywords)}</textarea></label>`)}
+  ${sec('writing',`<h3>Your Saved Lines</h3>${S.lines.length?`<ul class="linesed">${S.lines.map((l,i)=>`<li><span>${esc(l)}</span><button data-act="delline" data-i="${i}">Remove</button></li>`).join('')}</ul>`:'<p class="fine">Highlight a sentence in any message and tap Save Highlighted Text to keep it here.</p>'}
+  <h3>Pre-Shift Quotes</h3><label class="fl">One per line, quote then a | then the author. A different one prints each day.<textarea name="quotes" rows="8">${esc(S.quotes??QUOTES)}</textarea></label>`)}
+  ${sec('data',`<h3 id="backupH">Backup</h3><p class="fine">Sent history for every house lives in this browser. Back it up every couple of weeks to iCloud Drive or OneDrive.${S.lastBackup?` Last backup ${esc(ago(S.lastBackup))}.`:''}</p>
+  <div class="row" style="justify-content:flex-start"><button data-act="dlbackup">Download Backup</button><button data-act="cpbackup">Copy Backup</button><button data-act="restorefile">Restore From File</button></div>
+  <label class="fl">Or paste a backup here<textarea id="pasteRestore" rows="3" placeholder='{"app":"guest-ledger",...}'></textarea></label><button data-act="restorepaste">Restore Pasted Backup</button>
+  <h3>Data</h3><div class="row" style="justify-content:flex-start"><button data-act="clearweek">Clear This House's Guests</button><button data-act="reset">Reset Everything</button></div>`)}
+  ${sec('appearance',`<h3>Appearance</h3><p class="fine">Changes instantly and is remembered on this device.</p><div id="themeBox">${themePicker()}</div>`)}
+  <div class="savebar"><button class="primary" data-act="savesettings">Save Settings</button></div>`;
+  openPanel(el);
+}
+function readReminders(el){const v=n=>(el.querySelector(`[name="${n}"]`)||{}).value;S.remLoadDay=v('remLoadDay')||'MO';S.remLoadTime=v('remLoadTime')||'09:30';S.remQueueTime=v('remQueueTime')||'10:00';S.remSheetTime=v('remSheetTime')||'15:00'}
+function armed(btn,label,fn){if(btn.dataset.armed){fn();return}btn.dataset.armed='1';const o=btn.textContent;btn.textContent=label;setTimeout(()=>{if(btn.isConnected){delete btn.dataset.armed;btn.textContent=o}},4000)}
+function restoreText(txt){
+  let o;try{o=JSON.parse(txt)}catch(e){toast('That is not a Guest Ledger backup');return}
+  if(!o||o.app!=='guest-ledger'||!(o.ledger||o.ledgers)||!o.settings){toast('That is not a Guest Ledger backup');return}
+  S=Object.assign(clone(DEFAULTS),o.settings);migrate();
+  if(o.ledgers){for(const [k,v] of Object.entries(o.ledgers))if(v)save(`gl.ledger.v1.${k}`,v)}else save(houseKey('ledger'),o.ledger);
+  L=load(houseKey('ledger'),{guests:{},handled:{}});D=load(houseKey('data'),{rows:[],loadedAt:null,files:[]});saveS();applyTheme();closePanels();renderAll();toast('Backup restored');
+}
+$('#settings').addEventListener('click',e=>{
+  const tb=e.target.closest('[data-stab]');if(tb){settingsTab=tb.dataset.stab;$('#settings').querySelectorAll('[data-stab]').forEach(b=>{const on=b===tb;b.classList.toggle('on',on);b.setAttribute('aria-selected',on)});$('#settings').querySelectorAll('.stab').forEach(x=>x.classList.toggle('on',x.dataset.tab===settingsTab));$('#settings').scrollTop=0;return}
+  const th=e.target.closest('[data-theme]');if(th){S.theme=th.dataset.theme;saveS();applyTheme();$('#themeBox').innerHTML=themePicker();return}
+  const a=e.target.closest('[data-act]');if(!a)return;const k=a.dataset.act,el=$('#settings');
+  if(k==='close')closePanels();
+  if(k==='addcat'){catsDraft=readCats();catsDraft.splice(Math.max(0,catsDraft.findIndex(c=>c.id==='everyone')),0,{id:'c'+Date.now().toString(36),name:'New category',color:'amber',keywords:'',before:null,after:{subject:'Thank you, {first}',body:'Hi {first},\n\n\n\nWarmly,\n{sender}\n{title}, {venue}'}});if(!catsDraft.some(c=>c.id==='everyone'))catsDraft.push(catsDraft.shift());$('#catEd').innerHTML=catEditorHTML()}
+  if(k==='catup'){catsDraft=readCats();const i=+a.closest('.cated').dataset.i;[catsDraft[i-1],catsDraft[i]]=[catsDraft[i],catsDraft[i-1]];$('#catEd').innerHTML=catEditorHTML()}
+  if(k==='resetbook')armed(a,'Tap again to reset',()=>{S.books[slug(S.house)]=clone(BOOKS[slug(S.house)]);saveS();renderAll();openSettings();toast(`${S.house} playbook reset`)});
+  if(k==='catdel'){catsDraft=readCats();catsDraft.splice(+a.closest('.cated').dataset.i,1);$('#catEd').innerHTML=catEditorHTML()}
+  if(k==='delline'){S.lines.splice(+a.dataset.i,1);saveS();openSettings()}
+  if(k==='dlbackup'){
+    if(downloadFile(`guest-ledger-${slug(S.house)||'backup'}-backup-${todayISO()}.json`,backupJSON(),'application/json')){S.lastBackup=todayISO();saveS();renderAll();toast('Backup downloaded. If nothing appeared, use Copy backup.')}
+    else toast('Download blocked here. Use Copy backup.')
+  }
+  if(k==='cpbackup'){copyText(backupJSON());S.lastBackup=todayISO();saveS();renderAll()}
+  if(k==='restorefile')$('#restoreFile').click();
+  if(k==='ics'){readReminders(el);saveS();if(downloadFile('guest-ledger-reminders.ics',remindersICS(),'text/calendar'))toast('Reminders downloaded. Open the file to add them to your calendar.');else toast('Calendar files are blocked here. Use the hosted link.')}
+  if(k==='restorepaste')restoreText($('#pasteRestore').value);
+  if(k==='clearweek')armed(a,'Tap again to clear',()=>{D={rows:[],loadedAt:null,files:[]};saveD();closePanels();renderAll();toast('Guests cleared. Your history is kept.')});
+  if(k==='reset')armed(a,'Tap again to erase everything',()=>{try{Object.keys(localStorage).filter(k=>k.startsWith('gl.')).forEach(k=>localStorage.removeItem(k))}catch(_){}S=clone(DEFAULTS);L={guests:{},handled:{}};D={rows:[],loadedAt:null,files:[]};applyTheme();closePanels();renderAll();toast('Everything reset')});
+  if(k==='savesettings'){
+    const v=n=>el.querySelector(`[name="${n}"]`).value,num=(n,lo,hi,d)=>{const x=parseInt(v(n),10);return Number.isFinite(x)?Math.min(hi,Math.max(lo,x)):d};
+    S.sender=v('sender').trim();S.title=v('title').trim();S.venue=v('venue').trim();{const hs=[...new Set(v('houses').split('\n').map(x=>x.trim()).filter(Boolean))];if(hs.length){S.houses=hs;if(!hs.includes(S.house)){S.house=hs[0];L=load(houseKey('ledger'),{guests:{},handled:{}});D=load(houseKey('data'),{rows:[],loadedAt:null,files:[]});location.hash=slug(S.house)}}}S.fromEmail=v('fromEmail').trim();S.sendVia=v('sendVia');S.dietaryKeywords=v('dietaryKeywords');
+    S.lookbackDays=num('lookbackDays',1,60,10);S.cooldownDays=num('cooldownDays',0,365,30);S.regularVisits=num('regularVisits',2,100,4);
+    S.quotes=v('quotes').trim()===QUOTES.trim()?null:v('quotes');
+    {const bk=book();bk.afterDays=num('afterDays',0,14,1);bk.beforeDays=num('beforeDays',0,30,3);bk.lookaheadDays=num('lookaheadDays',1,120,10);bk.categories=readCats()}readReminders(el);
+    saveS();closePanels();renderAll();toast('Settings saved');
+  }
+});
+$('#restoreFile').addEventListener('change',async e=>{const f=e.target.files[0];e.target.value='';if(f)restoreText(await f.text())});
+
+/* ---------- pre-shift sheet ---------- */
+function quoteOfDay(day){
+  const list=String(S.quotes??QUOTES).split('\n').map(l=>l.trim()).filter(Boolean).map(l=>{const i=l.lastIndexOf('|');return i>0?{q:l.slice(0,i).trim(),a:l.slice(i+1).trim()}:{q:l,a:''}});
+  if(!list.length)return null;const n=daysBetween('2026-01-01',day);return list[((n%list.length)+list.length)%list.length];
+}
+function slot(t){const s=tsort(t);if(s==='99:99')return '99:99';const [h,m]=s.split(':').map(Number);return pad(h)+':'+(m<30?'00':'30')}
+function fmt12(s){if(s==='99:99')return 'No time';const [h,m]=s.split(':').map(Number);return `${(h%12)||12}:${pad(m)} ${h<12?'AM':'PM'}`}
+/* ---------- worth knowing: one index across every house ---------- */
+const houseRows=h=>h===S.house?D.rows:(load(`gl.data.v1.${slug(h)}`,{rows:[]}).rows||[]);
+const WK_MIN=3;
+function worthIndex(today){
+  const idx=new Map();
+  for(const h of S.houses)for(const r of houseRows(h)){
+    if(!r.date||isExcluded(r)||hasGroup(r,'blacklist'))continue;
+    const k=guestKey(r);if(!k)continue;
+    let g=idx.get(k);if(!g)idx.set(k,g={name:fullName(r),email:r.email,houses:new Set(),why:new Map(),visits:0,party:0,next:null,last:null});
+    g.houses.add(h);g.visits=Math.max(g.visits,r.visits||0);g.party=Math.max(g.party,+r.party||0);
+    if(r.date>=today){if(!g.next||r.date<g.next.r.date)g.next={h,r}}else if(!g.last||r.date>g.last.r.date)g.last={h,r};
+    const t=tagsByGroup(r),hay=hayOf(r),add=(l,w)=>g.why.set(l,Math.max(w,g.why.get(l)||0));
+    for(const v of t.vip||[])add(/badass/i.test(v)?'Badass':v,5);
+    for(const v of t.attention||[])if(/alert|house account/i.test(v))add(v,3);
+    for(const v of t.client||[])if(/^(friend|press|influencer|blogger|local business owner|concierge|always accommodate)/i.test(v))add(v,3);else if(/^(regular|industry)$/i.test(v))add(v,2);
+    if(hit(hay,'spender'))add('Big spender',2);
+    if(hit(hay,'negative review, negative feedback'))add('Rough visit on file',2);
+  }
+  for(const g of idx.values()){
+    if(g.visits>=S.regularVisits)g.why.set(`${g.visits} visits`,g.visits>=S.regularVisits*2?3:2);
+    if(g.party>=20)g.why.set(`Hosted ${g.party} guests`,3);else if(g.party>=10)g.why.set(`Party of ${g.party}`,2);
+    if(g.houses.size>1)g.why.set(`${g.houses.size} houses`,3);
+    g.score=[...g.why.values()].reduce((a,b)=>a+b,0);
+    g.reasons=[...g.why].sort((a,b)=>b[1]-a[1]).map(x=>x[0]);
+  }
+  return idx;
+}
+let worthTab='soon';
+function openWorth(){
+  const today=todayISO(),all=[...worthIndex(today).values()].filter(g=>g.score>=WK_MIN).sort((a,b)=>b.score-a.score||a.name.localeCompare(b.name));
+  const soon=all.filter(g=>g.next&&g.next.r.date<=addDays(today,7)).sort((a,b)=>(a.next.r.date+tsort(a.next.r.time)).localeCompare(b.next.r.date+tsort(b.next.r.time)));
+  const list=worthTab==='soon'?soon:all,when=x=>`${fmtShort(x.r.date)}${x.r.time?' at '+x.r.time:''} · ${x.h}${x.r.party?` · party of ${x.r.party}`:''}`;
+  const el=$('#worth');
+  el.innerHTML=`<div class="dh"><div><div class="dn">Worth Knowing</div><div class="ds">Guests across every house who have earned a hello. Built from the file loaded in each house.</div></div><button data-act="close">Close</button></div>
+  <nav class="stabs" role="tablist"><button role="tab" data-wk="soon" aria-selected="${worthTab==='soon'}" class="${worthTab==='soon'?'on':''}">Coming In This Week (${soon.length})</button><button role="tab" data-wk="all" aria-selected="${worthTab==='all'}" class="${worthTab==='all'?'on':''}">Everyone (${all.length})</button></nav>
+  ${list.map(g=>{const go=(g.next||g.last).h;return `<div class="wk"><div class="wkn">${esc(g.name)}</div>${g.email?`<div class="fine">${esc(g.email)}</div>`:''}
+  <div class="flags">${g.reasons.map(t=>`<span class="flag g-gold">${esc(t)}</span>`).join('')}${g.houses.size>1?[...g.houses].map(h=>`<span class="flag">${esc(h)}</span>`).join(''):''}</div>
+  ${g.next?`<div class="fine"><b>Next:</b> ${esc(when(g.next))}</div>`:''}${g.last?`<div class="fine"><b>Last:</b> ${esc(when(g.last))}</div>`:''}
+  <div class="row"><button data-house="${esc(go)}"${g.next?` data-day="${g.next.r.date}"`:''}>${g.next&&g.next.r.date<=addDays(today,6)?`Open the ${esc(go)} Pre-Shift`:`Go to ${esc(go)}`}</button></div></div>`}).join('')||`<p class="fine">${all.length?'None of them are booked in the next week.':'Nobody yet. Load an export in each house and the list builds itself: VIPs, Badass, friends of the house, regulars, big hosts, and anyone who visits more than one house.'}</p>`}`;
+  openPanel(el);
+}
+$('#btnWorth').onclick=openWorth;
+$('#worth').addEventListener('click',e=>{
+  const t=e.target.closest('[data-wk]');if(t){worthTab=t.dataset.wk;openWorth();return}
+  if(e.target.closest('[data-act="close"]')){closePanels();return}
+  const b=e.target.closest('[data-house]');if(!b)return;
+  const day=b.dataset.day,soon=day&&day<=addDays(todayISO(),6);closePanels();switchHouse(b.dataset.house);if(soon)buildSheet(day);
+});
+
+/* ---------- pre-shift sheet: one for every house, every day ---------- */
+let sheetDay=null;
+function buildSheet(day){
+  const today=todayISO(),bk=book(),week=Array.from({length:7},(_,i)=>addDays(today,i));
+  if(day)sheetDay=day;if(sheetDay!=='week'&&!week.includes(sheetDay))sheetDay=today;
+  const ups=D.rows.filter(r=>r.date&&week.includes(r.date)&&!isExcluded(r)).sort((a,b)=>(a.date+tsort(a.time)).localeCompare(b.date+tsort(b.time)));
+  const cel=catById('celebrate')||catById('milestone'),reg=catById('regular'),fir=catById('first'),bad=catById('badass');
+  const wk=worthIndex(today),W=r=>wk.get(guestKey(r)),isWK=r=>{const g=W(r);return !!g&&g.score>=WK_MIN};
+  const T=r=>tagsByGroup(r),has=(r,id)=>!!T(r)[id];
+  const isVip=r=>has(r,'vip')||(bad&&hit(hayOf(r),bad.keywords)),isAtt=r=>has(r,'attention'),isBlk=r=>has(r,'blacklist');
+  const isCel=r=>cel&&hit(hayOf(r),cel.keywords),isReg=r=>!isWK(r)&&reg&&(hit(hayOf(r),reg.keywords)||(r.visits!=null&&r.visits>=S.regularVisits)),isFir=r=>fir&&(hit(hayOf(r),fir.keywords)||(r.visits!=null&&r.visits<=1)),isDiet=r=>isDietary(r,S),isBig=r=>(+r.party||0)>=6;
+  const cut=(t,n)=>t.length>n?t.slice(0,n)+'...':t;
+  const notes=r=>cut([r.resNotes,r.clientNotes].filter(Boolean).join(' · '),240);
+  const prefs=r=>{const t=T(r),p=TAG_GROUPS.filter(g=>g.pref&&t[g.id]).flatMap(g=>t[g.id]);return p.length?'Prefers: '+p.join(' · '):''};
+  const both=r=>[prefs(r),notes(r)].filter(Boolean).join('. ');
+  const why=r=>{const g=W(r),o=[...g.houses].filter(h=>h!==S.house);return g.reasons.filter(x=>!/ houses$/.test(x)).concat(o.length?['Also a guest at '+o.join(' and ')]:[]).join(' · ')};
+  const occ=r=>{const o=occasionOf(hayOf(r));return o==='something special'?'Celebrating':o.replace(/^(your|a|an) /,'').replace(/^./,c=>c.toUpperCase())};
+  const touch=r=>{const g=L.guests[guestKey(r)];return g?{pre:g.sent.some(s=>s.resDate===r.date&&s.timing==='before'),recov:g.sent.some(s=>s.cat==='recovery')}:{}};
+  const line=(r,head,sub)=>`<li><b>${esc(r.time||'No time')}</b> ${esc(fullName(r))}${r.party?` · ${bk.events?esc(r.party)+' guests':'party of '+esc(r.party)}`:''}${head?` · ${esc(head)}`:''}${sub?`<div class="sx">${esc(sub)}</div>`:''}</li>`;
+  const sec=(t,list)=>list.length?`<h4>${t} (${list.length})</h4><ul>${list.join('')}</ul>`:'';
+  const byDate={};for(const r of ups)(byDate[r.date]=byDate[r.date]||[]).push(r);
+  const myNotes=S.notes[slug(S.house)]||{};
+  const days=sheetDay==='week'?week.filter(d=>d===today||byDate[d]||myNotes[d]):[sheetDay];
+  const q=quoteOfDay(sheetDay==='week'?today:sheetDay);
+  $('#sheetNav').innerHTML=`<div class="snav">${S.houses.map(h=>`<button data-house="${esc(h)}" class="${h===S.house?'on':''}"${h===S.house?' aria-current="page"':''}>${esc(h)}</button>`).join('')}</div>
+  <div class="snav">${week.map((d,i)=>`<button data-day="${d}" class="${d===sheetDay?'on':''}">${i?esc(new Date(d+'T12:00:00').toLocaleDateString('en-US',{weekday:'short',day:'numeric'})):'Today'}${byDate[d]?` (${byDate[d].length})`:''}</button>`).join('')}<button data-day="week" class="${sheetDay==='week'?'on':''}">Whole Week</button></div>`;
+  let html=`<h1>${esc(placeName()||'Pre-Shift')} Pre-Shift</h1><p class="fine">Printed ${esc(fmtLong(today))}. Internal only.</p>`;
+  for(const d of days){
+    const rs=byDate[d]||[],covers=rs.reduce((n,r)=>n+(+r.party||0),0),pace={};
+    for(const r of rs){const k=slot(r.time),p=pace[k]||(pace[k]={c:0,t:0});p.c+=+r.party||0;p.t++}
+    const peak=Math.max(1,...Object.values(pace).map(p=>p.c));
+    const stat=(n,one,many)=>n?`<span class="flag">${n} ${n===1?one:many}</span>`:'';
+    const wrote=rs.map(r=>[r,touch(r)]).filter(([,t])=>t.pre||t.recov).map(([r,t])=>line(r,t.recov?'Second chance':'Got a note from '+(S.sender||'us'),t.recov?'We wrote after a rough visit. Make this one right.':'Greet them by name. They are expecting us.'));
+    html+=`<h2>${esc(fmtLong(d))}</h2>
+    <h4>Shift Notes</h4><div class="focus" data-day="${d}" contenteditable="true" data-ph="Tap to write the notes for this shift. The focus, the features, what is 86, who to watch for.">${esc(myNotes[d]||'')}</div>`;
+    if(!rs.length){html+=`<p>${D.rows.length?'No reservations in the loaded file for this day.':`No export loaded for ${esc(S.house)} yet. The notes still print.`}</p>`;continue}
+    html+=`<div class="stats">${bk.events?stat(rs.length,'event','events'):stat(rs.length,'reservation','reservations')}${stat(covers,bk.events?'guest':'cover',bk.events?'guests':'covers')}${stat(rs.filter(isAtt).length,'special attention','special attention')}${stat(rs.filter(isWK).length,'worth knowing','worth knowing')}${stat(rs.filter(isCel).length,'celebrating','celebrating')}${stat(rs.filter(isDiet).length,'dietary','dietary')}${stat(rs.filter(isFir).length,'first visit','first visits')}${stat(rs.filter(isReg).length,'regular','regulars')}${bk.events?'':stat(rs.filter(isBig).length,'large party','large parties')}</div>
+    <h4>Pacing</h4><div class="pace">${Object.keys(pace).sort().map(k=>`<div><b>${fmt12(k)}</b><span>${pace[k].c} ${bk.events?'guests':'covers'} · ${pace[k].t} ${bk.events?(pace[k].t===1?'event':'events'):(pace[k].t===1?'table':'tables')}</span><i style="width:${Math.round(pace[k].c/peak*100)}%"></i></div>`).join('')}</div>
+    ${bk.events?sec('Events',rs.map(r=>line(r,(categorize(r,S)||{}).name,both(r)))):''}
+    ${sec('Special Attention',rs.filter(isAtt).map(r=>line(r,T(r).attention.join(' · '),notes(r))))}
+    ${sec('Blacklist',rs.filter(isBlk).map(r=>line(r,'See a manager',notes(r))))}
+    ${sec('Worth Knowing',rs.filter(isWK).map(r=>line(r,why(r),both(r))))}
+    ${sec('Celebrations',rs.filter(isCel).map(r=>line(r,occ(r),both(r))))}
+    ${sec('Dietary and Allergies',rs.filter(isDiet).map(r=>line(r,(T(r).dietary||[]).join(' · '),notes(r))))}
+    ${sec('Regulars',rs.filter(isReg).map(r=>line(r,r.visits!=null?`${r.visits} visits`:'',both(r))))}
+    ${sec('First Visits',rs.filter(isFir).map(r=>line(r,'',notes(r))))}
+    ${bk.events?'':sec('Large Parties',rs.filter(isBig).map(r=>line(r,'',notes(r))))}
+    ${sec('Guests We Have Written To',wrote)}`;
+  }
+  if(q)html+=`<div class="quote"><q>${esc(q.q)}</q>${q.a?`<span>${esc(q.a)}</span>`:''}</div>`;
+  $('#sheet').innerHTML=html;$('#sheetWrap').hidden=false;
+}
+$('#sheet').addEventListener('input',e=>{
+  const f=e.target.closest('.focus');if(!f)return;
+  const n=S.notes[slug(S.house)]||(S.notes[slug(S.house)]={}),t=f.innerText.trim(),old=addDays(todayISO(),-14);
+  if(t)n[f.dataset.day]=t;else delete n[f.dataset.day];
+  for(const d of Object.keys(n))if(d<old)delete n[d];
+  saveS();
+});
+$('#sheetNav').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.house){switchHouse(b.dataset.house);buildSheet()}else buildSheet(b.dataset.day)});
+$('#btnSheet').onclick=()=>buildSheet(todayISO());
+$('#btnCloseSheet').onclick=()=>$('#sheetWrap').hidden=true;
+$('#btnPrint').onclick=()=>{try{window.print()}catch(_){toast('Printing is blocked here. Use Copy.')}};
+$('#btnCopySheet').onclick=()=>copyText($('#sheet').innerText);
+
+/* ---------- sample data ---------- */
+function sampleCSV(){
+  const t=todayISO(),d=n=>addDays(t,n);
+  const H=['First Name','Last Name','Email','Phone','Date','Time','Party Size','Status','Reservation Tags','Client Tags','Reservation Notes','Client Notes','Total Visits'];
+  const R=[
+    ['Marcus','Thompson','marcus.t@example.com','719-555-0101',d(-2),'7:30 PM','4','Complete','','Regular, Alert GM','Ribeye sent back twice, dessert comped by manager','','3'],
+    ['Elena','Reyes','elena.reyes@example.com','',d(5),'7:00 PM','2','Booked','Anniversary','Seafood, Quiet table, Veuve Clicquot','10th anniversary, would love a quiet table','Shellfish allergy','2'],
+    ['Jordan','Kim','jkim@example.com','',d(6),'8:15 PM','6','Booked','Birthday','','Birthday for his wife Dana','','1'],
+    ['Priya','Shah','priya.shah@example.com','',d(-3),'6:30 PM','2','Complete','First Time Guest','','','Gluten free','1'],
+    ['Sam','Whitaker','sam.w@example.com','',d(-1),'8:00 PM','2','Complete','First Time Guest','','Found us on Instagram','','1'],
+    ['Laura','Hale','laura.hale@example.com','',d(-2),'6:00 PM','4','Complete','','VIP, BADASS, Booth, Cabernet Sauvignon, Macallan','Wants the corner booth','Cab lover, always orders the tomahawk','12'],
+    ['Chris','Ortega','c.ortega@example.com','',d(4),'6:45 PM','3','Booked','First Time Guest','','Celiac in party','','0'],
+    ['Danielle','Brooks','dbrooks@example.com','',d(-1),'7:15 PM','2','Complete','Anniversary','','Engagement anniversary','','2'],
+    ['Mike','Novak','mnovak@example.com','',d(-3),'7:45 PM','2','No Show','','','','','1'],
+    ['Ava','Lindqvist','ava.l@example.com','',d(5),'6:15 PM','2','Booked','','Regular, Tree nuts, Pinot Noir, Sparkling water','','Nut allergy, tree nuts','6'],
+    ['Tom','Becker','tbecker@example.com','',d(-2),'8:30 PM','5','Complete','','Negative Review','Long wait for table, apologized at the stand','','2'],
+    ['Grace','Okafor','grace.okafor@example.com','',d(-1),'6:00 PM','2','Complete','','','','','2'],
+    ['Owen','Price','owen.price@example.com','',d(-1),'7:00 PM','4','Complete','','Regular','','Always asks for Sam as his server','7'],
+    ['Ben','Carter','','',d(-3),'7:00 PM','2','Complete','Birthday','','','','1'],
+    ['Nina','Patel','nina.p@example.com','',d(6),'7:30 PM','8','Booked','Celebration','Wheelchair, Round table','Promotion dinner for her team','','3'],
+    ['Victor','Lane','vlane@example.com','',d(5),'8:00 PM','2','Booked','','Blacklist','','','3'],
+    ['Hector','Ruiz','hruiz@example.com','',d(4),'8:00 PM','2','Cancelled','','','','','1'],
+    ['Renee','Castillo','renee.c@example.com','',d(0),'6:30 PM','4','Booked','Birthday','Window, Pinot Noir','Birthday dinner for her mom','','5'],
+    ['Isaac','Bell','isaac.bell@example.com','',d(0),'7:45 PM','2','Booked','','Friend of owner, Booth','','Knows the owners, likes the corner booth','9']
+  ];
+  const EV=[
+    ['Megan','Foster','megan.foster@example.com','',d(9),'5:00 PM','60','Booked','Wedding','','Rehearsal dinner for the Foster and Lee wedding. Toasts at 6:30, cake from an outside bakery.','Two vegan, one celiac',''],
+    ['Robert','Ellis','rellis@example.com','',d(4),'1:00 PM','35','Booked','','','Celebration of life for his father. Photo table and a slideshow.','',''],
+    ['Laura','Hale','laura.hale@example.com','',d(12),'6:00 PM','45','Booked','Corporate','VIP, BADASS','Hale Construction holiday party. Needs a projector and a mic for awards.','','12'],
+    ['Dana','Whitfield','dana.w@example.com','',d(20),'6:30 PM','30','Booked','Birthday','','Surprise 50th birthday for her husband. Guests at 6:00, he arrives at 6:30.','Nut allergy in the group',''],
+    ['Hannah','Cole','hcole@example.com','',d(0),'11:00 AM','18','Booked','','','Baby shower brunch','Gluten free cupcakes requested',''],
+    ['Tyler','Boone','tboone@example.com','',d(30),'6:00 PM','50','Booked','','','Annual awards banquet for the fire department','',''],
+    ['Kevin','Marsh','kmarsh@example.com','',d(-2),'12:00 PM','24','Complete','Corporate','','Chamber of commerce luncheon','','3'],
+    ['Sofia','Alvarez','sofia.alvarez@example.com','',d(-3),'5:30 PM','80','Complete','Wedding','','Alvarez and Chen wedding reception','',''],
+    ['Paul','Greer','pgreer@example.com','',d(-2),'6:00 PM','40','Complete','','Negative Feedback','Retirement party. Bar ran out of the bourbon he requested, apologized to the host.','',''],
+    ['Iris','Nolan','inolan@example.com','',d(6),'6:00 PM','22','Cancelled','','','Reunion dinner','','']
+  ];
+  return [H,...(book().events?EV:R)].map(row=>row.map(v=>/[",\n]/.test(v)?`"${v.replace(/"/g,'""')}"`:v).join(',')).join('\n');
+}
+$('#btnSample').onclick=()=>handleFiles([new File([sampleCSV()],'sample-guests.csv',{type:'text/csv'})]);
+
+/* ---------- banners, wiring ---------- */
+function banner(){
+  const b=$('#banner'),h=load(KEYS.H,{}),ios=/iPad|iPhone/.test(navigator.userAgent)||(navigator.maxTouchPoints>1&&/Macintosh/.test(navigator.userAgent));
+  let inFrame=false;try{inFrame=window.top!==window.self}catch(_){inFrame=true}
+  if(!storageOK){b.innerHTML='<span>This browser is not saving data. Use Backup at the end of each session.</span>';b.hidden=false;return}
+  if(ios&&!navigator.standalone&&!inFrame&&!h.installDismissed){b.innerHTML='<span>Add this to your Home Screen so your guest history is never cleared: Share, then Add to Home Screen.</span><button data-act="dismiss">Got it</button>';b.hidden=false;return}
+  b.hidden=true;
+}
+$('#banner').addEventListener('click',e=>{if(e.target.closest('[data-act="dismiss"]')){const h=load(KEYS.H,{});h.installDismissed=true;save(KEYS.H,h);$('#banner').hidden=true}});
+$('#btnLoad').onclick=$('#btnChoose').onclick=()=>$('#file').click();
+$('#file').addEventListener('change',e=>{const f=[...e.target.files];e.target.value='';handleFiles(f)});
+$('#btnSettings').onclick=()=>openSettings();
+$('#btnBackup').onclick=()=>openSettings('backup');
+$('#btnExport').onclick=()=>{const csv=exportCSV();if(downloadFile(`guest-ledger-${slug(S.house)||'guests'}-${todayISO()}.csv`,csv,'text/csv'))toast('Guest list exported. It opens in Excel, Numbers or Google Sheets.');else copyText(csv)};
+$('#btnCols').onclick=()=>{if(!lastRaw){toast('Load the file again to change columns');return}pending=clone(lastRaw);showMapping()};
+$('#scrim').onclick=closePanels;
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&(e.metaKey||e.ctrlKey)&&!$('#drawer').hidden&&$('#gOpen')){e.preventDefault();$('#gOpen').click();return}if(e.key==='Escape'){if(!$('#sheetWrap').hidden)$('#sheetWrap').hidden=true;else closePanels()}});
+const drop=$('#drop');
+document.addEventListener('dragover',e=>{e.preventDefault();drop.classList.add('over')});
+document.addEventListener('dragleave',e=>{if(!e.relatedTarget)drop.classList.remove('over')});
+document.addEventListener('drop',e=>{e.preventDefault();drop.classList.remove('over');if(e.dataTransfer&&e.dataTransfer.files.length)handleFiles(e.dataTransfer.files)});
+applyTheme();renderAll();
+</script>
+</body>
+</html>
